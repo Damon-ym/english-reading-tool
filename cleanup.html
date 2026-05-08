@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>清理缓存</title>
+<style>
+body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#FFF9FB;color:#333}
+.box{text-align:center;padding:40px;max-width:360px}
+.box h2{font-size:1.4rem;margin-bottom:16px}
+.box p{font-size:.95rem;color:#666;line-height:1.6}
+.btn{display:inline-block;margin-top:24px;padding:14px 36px;background:linear-gradient(135deg,#FF6B9D,#FF8E53);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer}
+.btn:active{transform:scale(.95)}
+.success{color:#00B894;font-weight:700;font-size:1.1rem;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>🧹 清理旧缓存</h2>
+<p>点击下方按钮，将清除旧的 Service Worker 和所有缓存数据。<br>清理完成后，请重新打开跟读工具页面。</p>
+<button class="btn" onclick="doClean()">开始清理</button>
+<div id="result"></div>
+</div>
+<script>
+async function doClean() {
+    const result = document.getElementById('result');
+    result.innerHTML = '<p>正在清理...</p>';
+    let msg = [];
+    // 1. 注销所有 Service Worker
+    if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+            await r.unregister();
+            msg.push('已注销: ' + r.scope);
+        }
+        if (regs.length === 0) msg.push('没有发现 Service Worker');
+    }
+    // 2. 清除所有 Cache Storage
+    if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const k of keys) {
+            await caches.delete(k);
+            msg.push('已清除缓存: ' + k);
+        }
+        if (keys.length === 0) msg.push('没有发现缓存');
+    }
+    // 3. 清除 localStorage 中的 SW 相关数据
+    localStorage.removeItem('theme-mode');
+    result.innerHTML = '<div class="success">✅ 清理完成！</div><p>' + msg.join('<br>') + '</p><p style="margin-top:16px;font-weight:700">请点击下方按钮返回跟读工具</p><a class="btn" href="./index.html" style="text-decoration:none">打开跟读工具</a>';
+}
+</script>
+</body>
+</html>
