@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>英语跟读小助手</title>
+    <style>
+:root{--primary:#FF6B9D;--primary-light:#FFE4EC;--secondary:#4ECDC4;--accent:#FFE66D;--bg:#FFF9FB;--card:#FFF;--text:#2D3436;--text2:#636E72;--border:#FFE4EC;--shadow:0 4px 20px rgba(255,107,157,.15);--shadow2:0 8px 30px rgba(255,107,157,.25);--r:20px;--rs:12px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;padding:20px;min-height:100vh}
+.header{text-align:center;padding:16px 0 24px}
+.header h1{font-size:1.7rem;color:var(--primary);font-weight:700}
+.subtitle{color:var(--text2);font-size:.9rem}
+.panel{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.sg{margin-bottom:14px}.sg:last-child{margin-bottom:0}
+.sg label{display:block;font-size:.85rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+#voice-select{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--rs);font-size:.95rem;background:var(--bg);color:var(--text);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FF6B9D' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:18px}
+#rate-slider{width:100%;height:8px;-webkit-appearance:none;appearance:none;background:var(--primary-light);border-radius:4px;outline:none}
+#rate-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;background:var(--primary);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(255,107,157,.4)}
+#rate-value{color:var(--primary);font-weight:600}
+#text-input{width:100%;min-height:100px;padding:14px;border:2px solid var(--border);border-radius:var(--rs);font-size:.95rem;line-height:1.6;resize:vertical;font-family:inherit;background:var(--bg);color:var(--text);margin-bottom:14px}
+#text-input:focus{outline:none;border-color:var(--primary)}
+#text-input::placeholder{color:#B2BEC3}
+.btn-p{width:100%;padding:14px 20px;background:linear-gradient(135deg,var(--primary),#FF8FB3);color:#fff;border:none;border-radius:var(--rs);font-size:1.05rem;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(255,107,157,.3)}
+.btn-p:active{transform:scale(.98)}
+.full-actions{display:flex;gap:10px;margin-top:12px}
+.btn-full{flex:1;padding:12px 8px;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;text-align:center}
+.btn-full-play{background:var(--secondary);color:#fff;box-shadow:0 3px 10px rgba(78,205,196,.3)}
+.btn-full-rec{background:#FF9F43;color:#fff;box-shadow:0 3px 10px rgba(255,159,67,.3)}
+.btn-full:active{transform:scale(.96)}
+.sentences{min-height:100px}
+.empty{text-align:center;padding:50px 20px;color:var(--text2)}
+.empty-icon{font-size:3.5rem;margin-bottom:12px;opacity:.6}
+.card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .3s}
+.card.active{border:2px solid var(--primary);box-shadow:var(--shadow2);background:var(--primary-light)}
+.card-num{position:absolute;top:10px;left:14px;width:26px;height:26px;background:var(--primary-light);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600}
+.card-text{font-size:1.25rem;line-height:1.8;margin:32px 0 16px;padding:0 6px;font-weight:500}
+.card-btns{display:flex;gap:10px;justify-content:center}
+.btn-s,.btn-r{flex:1;max-width:130px;padding:12px 16px;border:none;border-radius:var(--rs);font-size:.95rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-s{background:var(--secondary);color:#fff;box-shadow:0 3px 10px rgba(78,205,196,.3)}
+.btn-r{background:var(--accent);color:var(--text);box-shadow:0 3px 10px rgba(255,230,109,.3)}
+.btn-s:active,.btn-r:active{transform:scale(.95)}
+.btn-r.recording{background:#FF6B6B;color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal.show{display:flex;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--card);border-radius:var(--r);padding:36px 28px;text-align:center;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.stars{font-size:2.8rem;margin-bottom:14px;letter-spacing:3px}
+.score-msg{font-size:1.4rem;font-weight:700;margin-bottom:10px}
+.score-detail{font-size:.85rem;color:var(--text2);margin-bottom:6px}
+.btn-ok{width:100%;padding:14px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--rs);font-size:1.05rem;font-weight:600;cursor:pointer;margin-top:16px}
+.btn-ok:active{transform:scale(.98)}
+.record-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.record-modal.show{display:flex;animation:fadeIn .3s}
+.record-box{background:var(--card);border-radius:var(--r);padding:30px 24px;text-align:center;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+.record-box h3{font-size:1.2rem;color:var(--primary);margin-bottom:16px}
+.record-tip{font-size:.9rem;color:var(--text2);margin-bottom:14px}
+.record-waves{display:flex;align-items:center;justify-content:center;gap:4px;height:40px;margin-bottom:16px}
+.rw-bar{width:6px;background:var(--primary);border-radius:3px;animation:wave 1s ease-in-out infinite}
+.rw-bar:nth-child(1){height:12px;animation-delay:0s}
+.rw-bar:nth-child(2){height:20px;animation-delay:.15s}
+.rw-bar:nth-child(3){height:30px;animation-delay:.3s}
+.rw-bar:nth-child(4){height:20px;animation-delay:.45s}
+.rw-bar:nth-child(5){height:12px;animation-delay:.6s}
+@keyframes wave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.2)}}
+.record-btns{display:flex;gap:10px;justify-content:center}
+.btn-stop-rec{padding:12px 28px;background:#FF6B6B;color:#fff;border:none;border-radius:var(--rs);font-size:1rem;font-weight:600;cursor:pointer}
+.btn-stop-rec:active{transform:scale(.96)}
+.btn-replay{padding:12px 28px;background:var(--secondary);color:#fff;border:none;border-radius:var(--rs);font-size:1rem;font-weight:600;cursor:pointer}
+.btn-replay:active{transform:scale(.96)}
+.full-progress{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--shadow);display:none}
+.full-progress.show{display:block}
+.fp-label{font-size:.9rem;color:var(--text2);margin-bottom:8px}
+.fp-text{font-size:1.2rem;font-weight:600;color:var(--primary);margin-bottom:10px;min-height:2em}
+.fp-bar{width:100%;height:8px;background:var(--primary-light);border-radius:4px;overflow:hidden}
+.fp-fill{height:100%;background:var(--primary);border-radius:4px;transition:width .3s}
+.fp-status{font-size:.85rem;color:var(--text2);margin-top:8px}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2000;overflow:hidden}
+.confetti{position:absolute;width:10px;height:10px;border-radius:50%;animation:confettiFall 2s ease-out forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.loading{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);z-index:1001;align-items:center;justify-content:center;flex-direction:column}
+.loading.show{display:flex}
+.spinner{width:44px;height:44px;border:4px solid var(--primary-light);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(45,52,54,.9);color:#fff;padding:12px 24px;border-radius:30px;font-size:.9rem;opacity:0;transition:all .3s;z-index:1002;white-space:nowrap;max-width:90%;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:380px){.app{padding:14px}.header h1{font-size:1.4rem}.card-text{font-size:1.1rem}.btn-s,.btn-r{padding:10px 12px;font-size:.85rem}}
+@supports(padding-top:env(safe-area-inset-top)){.app{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}}
+.btn-p,.btn-s,.btn-r,.btn-ok,.btn-stop-rec,.btn-replay,.btn-full{user-select:none;-webkit-user-select:none}
+
+/* ===== 新增样式 ===== */
+
+/* 主题切换按钮栏 */
+.theme-bar{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.theme-dot{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .2s}
+.theme-dot.active{border-color:var(--text);transform:scale(1.15)}
+.theme-dot:active{transform:scale(.9)}
+
+/* 主题：海洋蓝 */
+[data-theme="ocean"]{--primary:#0984E3;--primary-light:#D6EAF8;--secondary:#00CEC9;--accent:#FFEAA7;--bg:#F0F7FF;--card:#FFF;--text:#2D3436;--text2:#636E72;--border:#D6EAF8;--shadow:0 4px 20px rgba(9,132,227,.15);--shadow2:0 8px 30px rgba(9,132,227,.25)}
+/* 主题：森林绿 */
+[data-theme="forest"]{--primary:#00B894;--primary-light:#D5F5E3;--secondary:#FDCB6E;--accent:#E17055;--bg:#F0FFF4;--card:#FFF;--text:#2D3436;--text2:#636E72;--border:#D5F5E3;--shadow:0 4px 20px rgba(0,184,148,.15);--shadow2:0 8px 30px rgba(0,184,148,.25)}
+/* 主题：薰衣草紫 */
+[data-theme="lavender"]{--primary:#A29BFE;--primary-light:#E8E6FF;--secondary:#FD79A8;--accent:#FFEAA7;--bg:#F8F6FF;--card:#FFF;--text:#2D3436;--text2:#636E72;--border:#E8E6FF;--shadow:0 4px 20px rgba(162,155,254,.15);--shadow2:0 8px 30px rgba(162,155,254,.25)}
+/* 主题：暗夜黑 */
+[data-theme="dark"]{--primary:#E17055;--primary-light:#2D3436;--secondary:#00CEC9;--accent:#FDCB6E;--bg:#1A1A2E;--card:#16213E;--text:#EAEAEA;--text2:#A0A0B0;--border:#2D3436;--shadow:0 4px 20px rgba(0,0,0,.4);--shadow2:0 8px 30px rgba(0,0,0,.6)}
+[data-theme="dark"] .modal-box,[data-theme="dark"] .record-box,[data-theme="dark"] .mistake-box,[data-theme="dark"] .report-box,[data-theme="dark"] .fav-box{background:#16213E;color:#EAEAEA}
+[data-theme="dark"] .btn-p{background:linear-gradient(135deg,#E17055,#D63031)}
+[data-theme="dark"] #text-input,[data-theme="dark"] #voice-select{background:#1A1A2E;color:#EAEAEA;border-color:#2D3436}
+[data-theme="dark"] .stat-card{background:#16213E}
+[data-theme="dark"] .card{background:#16213E}
+[data-theme="dark"] .card-num{background:#2D3436;color:#E17055}
+[data-theme="dark"] .hw span.hl{background:#00CEC9;color:#1A1A2E}
+[data-theme="dark"] .loading{background:rgba(26,26,46,.95)}
+[data-theme="dark"] .toast{background:rgba(234,234,234,.9);color:#1A1A2E}
+
+/* 统计栏 */
+.stats-bar{display:flex;gap:10px;margin-bottom:16px}
+.stat-card{flex:1;background:var(--card);border-radius:var(--rs);padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:1.5rem;font-weight:700;color:var(--primary)}
+.stat-label{font-size:.75rem;color:var(--text2);margin-top:2px}
+
+/* 示例文本按钮 */
+.example-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.btn-ex{padding:6px 14px;border:2px solid var(--border);border-radius:20px;background:var(--bg);color:var(--text2);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-ex:active{transform:scale(.95);border-color:var(--primary);color:var(--primary)}
+
+/* 完成标记 */
+.card.done::after{content:'✅';position:absolute;top:10px;right:14px;font-size:1.2rem}
+
+/* 逐词高亮 */
+.hw span{transition:color .15s,background .15s;border-radius:4px;padding:1px 3px}
+.hw span.hl{color:#fff;background:var(--secondary);font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.2)}
+
+/* 重试按钮 */
+.btn-retry{width:100%;padding:12px 20px;background:var(--secondary);color:#fff;border:none;border-radius:var(--rs);font-size:.95rem;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-retry:active{transform:scale(.98)}
+
+/* 错题本和报告按钮 */
+.extra-bar{display:flex;gap:10px;margin-bottom:16px}
+.btn-extra{flex:1;padding:12px 8px;border:none;border-radius:var(--rs);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-mistakes{background:#FDCB6E;color:var(--text);box-shadow:0 3px 10px rgba(253,203,110,.3)}
+.btn-report{background:#A29BFE;color:#fff;box-shadow:0 3px 10px rgba(162,155,254,.3)}
+.btn-extra:active{transform:scale(.96)}
+
+/* 错题本弹窗 */
+.mistake-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.mistake-modal.show{display:flex;animation:fadeIn .3s}
+.mistake-box{background:var(--card);border-radius:var(--r);padding:24px 20px;max-width:360px;width:100%;max-height:70vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+.mistake-box h3{font-size:1.15rem;color:var(--primary);margin-bottom:14px;text-align:center}
+.mistake-item{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border-left:4px solid #FF6B6B}
+.mistake-item .mi-text{font-size:.95rem;font-weight:500;margin-bottom:4px}
+.mistake-item .mi-score{font-size:.8rem;color:var(--text2)}
+.mistake-empty{text-align:center;color:var(--text2);padding:20px 0;font-size:.9rem}
+
+/* 报告弹窗 */
+.report-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.report-modal.show{display:flex;animation:fadeIn .3s}
+.report-box{background:var(--card);border-radius:var(--r);padding:24px 20px;max-width:360px;width:100%;max-height:70vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+.report-box h3{font-size:1.15rem;color:var(--primary);margin-bottom:14px;text-align:center}
+.report-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.report-row:last-child{border-bottom:none}
+.report-row .rr-label{color:var(--text2)}
+.report-row .rr-value{font-weight:600;color:var(--primary)}
+.report-chart{margin:14px 0;text-align:center}
+.report-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.report-bar-label{font-size:.75rem;color:var(--text2);width:50px;text-align:right}
+.report-bar-track{flex:1;height:16px;background:var(--primary-light);border-radius:8px;overflow:hidden}
+.report-bar-fill{height:100%;border-radius:8px;transition:width .5s}
+.report-bar-fill.f5{background:#FFD700}
+.report-bar-fill.f4{background:#FFA500}
+.report-bar-fill.f3{background:#90EE90}
+.report-bar-fill.f2{background:#87CEEB}
+.report-bar-fill.f1{background:#FFB6C1}
+.report-bar-num{font-size:.75rem;color:var(--text2);width:24px}
+
+/* 收藏按钮栏 */
+.fav-bar{display:flex;gap:10px;margin-top:12px}
+.btn-fav{flex:1;padding:12px 8px;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;text-align:center}
+.btn-fav-add{background:#FFEAA7;color:var(--text);box-shadow:0 3px 10px rgba(255,234,167,.4)}
+.btn-fav-add:active{transform:scale(.96)}
+
+/* 收藏夹弹窗 */
+.fav-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.fav-modal.show{display:flex;animation:fadeIn .3s}
+.fav-box{background:var(--card);border-radius:var(--r);padding:24px 20px;max-width:360px;width:100%;max-height:70vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+.fav-box h3{font-size:1.15rem;color:var(--primary);margin-bottom:14px;text-align:center}
+.fav-item{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border-left:4px solid #FFEAA7;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fav-item .fi-info{flex:1;min-width:0}
+.fav-item .fi-title{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-item .fi-date{font-size:.75rem;color:var(--text2);margin-top:2px}
+.fav-item .fi-btns{display:flex;gap:6px;flex-shrink:0}
+.fav-item .fi-btn{padding:6px 10px;border:none;border-radius:8px;font-size:.8rem;cursor:pointer;font-weight:500}
+.fi-btn-load{background:var(--secondary);color:#fff}
+.fi-btn-del{background:#FF6B6B;color:#fff}
+.fav-empty{text-align:center;color:var(--text2);padding:20px 0;font-size:.9rem}
+
+/* 录音库弹窗（复用mistake-modal样式，增加录音库特有样式） */
+.rec-item{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border-left:4px solid var(--secondary);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rec-item .ri-info{flex:1;min-width:0}
+.rec-item .ri-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-item .ri-meta{font-size:.75rem;color:var(--text2);margin-top:2px}
+.rec-item .ri-btns{display:flex;gap:6px;flex-shrink:0}
+.rec-item .ri-btn{padding:6px 10px;border:none;border-radius:8px;font-size:.8rem;cursor:pointer;font-weight:500}
+.ri-btn-play{background:var(--secondary);color:#fff}
+.ri-btn-share{background:#A29BFE;color:#fff}
+.ri-btn-del{background:#FF6B6B;color:#fff}
+.rec-empty{text-align:center;color:var(--text2);padding:20px 0;font-size:.9rem}
+
+/* 按钮通用 */
+.btn-fav,.fi-btn,.ri-btn{user-select:none;-webkit-user-select:none}
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <h1>🌟 英语跟读小助手</h1>
+        <p class="subtitle">听原声 · 跟着读 · 得星星</p>
+        <div class="theme-bar">
+            <div class="theme-dot active" data-theme="default" style="background:#FF6B9D" title="粉红"></div>
+            <div class="theme-dot" data-theme="ocean" style="background:#0984E3" title="海洋蓝"></div>
+            <div class="theme-dot" data-theme="forest" style="background:#00B894" title="森林绿"></div>
+            <div class="theme-dot" data-theme="lavender" style="background:#A29BFE" title="薰衣草紫"></div>
+            <div class="theme-dot" data-theme="dark" style="background:#1A1A2E;border:2px solid #555" title="暗夜黑"></div>
+            <div class="theme-dot" data-theme="auto" style="background:linear-gradient(135deg,#FF6B9D 50%,#1A1A2E 50%)" title="自动切换（长按设置时段）"></div>
+        </div>
+    </header>
+
+    <section class="panel">
+        <div class="sg">
+            <label for="voice-select">🎙️ 选择声音（女声）</label>
+            <select id="voice-select"><option value="">加载中...</option></select>
+        </div>
+        <div class="sg">
+            <label for="rate-slider">🐢 语速 <span id="rate-value">0.8x</span></label>
+            <input type="range" id="rate-slider" min="0.25" max="1.5" step="0.05" value="0.8">
+        </div>
+    </section>
+
+    <!-- 统计栏 -->
+    <div class="stats-bar">
+        <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">已练习</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-stars">0</div><div class="stat-label">得星星</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-avg">0</div><div class="stat-label">平均分</div></div>
+    </div>
+
+    <section class="panel">
+        <!-- 示例文本按钮 -->
+        <div class="example-bar" id="example-bar">
+            <button class="btn-ex" data-key="animal">🐾 动物</button>
+            <button class="btn-ex" data-key="color">🎨 颜色</button>
+            <button class="btn-ex" data-key="fruit">🍎 水果</button>
+            <button class="btn-ex" data-key="greeting">👋 问候</button>
+            <button class="btn-ex" id="btn-refresh-ex" style="border-color:var(--primary);color:var(--primary)">🔄 换一批</button>
+        </div>
+        <textarea id="text-input" placeholder="在这里粘贴英语文本...&#10;例如：The cat sat on the mat. It was a sunny day."></textarea>
+        <div class="fav-bar">
+            <button id="parse-btn" class="btn-p" style="flex:2">✨ 开始练习</button>
+            <button id="btn-fav-add" class="btn-fav btn-fav-add">⭐ 收藏本文</button>
+        </div>
+        <div class="full-actions" id="full-actions" style="display:none">
+            <button class="btn-full btn-full-play" id="btn-full-play">🔊 全文播报</button>
+            <button class="btn-full btn-full-rec" id="btn-full-rec">🎤 全文跟读</button>
+        </div>
+    </section>
+
+    <div class="full-progress" id="full-progress">
+        <div class="fp-label">全文跟读进度</div>
+        <div class="fp-text" id="fp-text">准备中...</div>
+        <div class="fp-bar"><div class="fp-fill" id="fp-fill" style="width:0%"></div></div>
+        <div class="fp-status" id="fp-status">第 0 / 0 句</div>
+    </div>
+
+    <!-- 录音库、收藏夹和报告按钮 -->
+    <div class="extra-bar">
+        <button class="btn-extra btn-mistakes" id="btn-mistakes">🎵 录音库</button>
+        <button class="btn-extra btn-report" id="btn-report">📊 学习报告</button>
+        <button class="btn-extra btn-fav-list" id="btn-fav-list" style="background:#FFEAA7;color:var(--text);box-shadow:0 3px 10px rgba(255,234,167,.3)">⭐ 收藏夹</button>
+    </div>
+
+    <section class="sentences" id="sentences-container">
+        <div class="empty"><div class="empty-icon">📖</div><p>输入文本后点击"开始练习"</p></div>
+    </section>
+</div>
+
+<!-- 评分弹窗（合并录音回听+评分） -->
+<div class="modal" id="score-modal">
+    <div class="modal-box">
+        <div class="stars" id="score-stars"></div>
+        <div class="score-msg" id="score-message"></div>
+        <div class="score-detail" id="score-detail"></div>
+        <div class="score-detail" id="score-recognized"></div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn-replay" id="btn-replay" style="flex:1;margin:0;padding:12px 8px">🔁 回听</button>
+            <button class="btn-retry" id="btn-back" style="flex:1;margin:0;padding:12px 8px;background:#95A5A6">↩️ 返回</button>
+        </div>
+        <button class="btn-retry" id="btn-retry">🔄 再试一次</button>
+        <button class="btn-ok" id="close-modal">👍 继续</button>
+    </div>
+</div>
+
+<!-- 录音弹窗（两步：录音 → 回听+评分） -->
+<div class="record-modal" id="record-modal">
+    <div class="record-box">
+        <h3 id="rm-title">🎤 请跟读</h3>
+        <div class="record-tip" id="rm-tip">读完后点击"停止录音"</div>
+        <div class="record-waves" id="rm-waves">
+            <div class="rw-bar"></div><div class="rw-bar"></div><div class="rw-bar"></div><div class="rw-bar"></div><div class="rw-bar"></div>
+        </div>
+        <div class="record-btns" id="rm-btns">
+            <button class="btn-stop-rec" id="btn-stop-rec">⏹️ 停止录音</button>
+        </div>
+    </div>
+</div>
+
+<!-- 录音库弹窗 -->
+<div class="mistake-modal" id="mistake-modal">
+    <div class="mistake-box">
+        <h3>🎵 录音库</h3>
+        <div id="rec-list"></div>
+        <button class="btn-ok" id="close-mistakes" style="margin-top:14px">关闭</button>
+        <button id="btn-reset-data2" style="width:100%;padding:10px;margin-top:8px;background:none;border:1.5px dashed #ccc;border-radius:8px;color:#aaa;font-size:.8rem;cursor:pointer">🗑️ 清空录音库</button>
+    </div>
+</div>
+
+<!-- 报告弹窗 -->
+<div class="report-modal" id="report-modal">
+    <div class="report-box">
+        <h3>📊 学习报告</h3>
+        <div id="report-content"></div>
+        <button class="btn-ok" id="close-report" style="margin-top:14px">关闭</button>
+        <button id="btn-reset-data" style="width:100%;padding:10px;margin-top:8px;background:none;border:1.5px dashed #ccc;border-radius:8px;color:#aaa;font-size:.8rem;cursor:pointer">🗑️ 重置学习数据</button>
+    </div>
+</div>
+
+<!-- 收藏夹弹窗 -->
+<div class="fav-modal" id="fav-modal">
+    <div class="fav-box">
+        <h3>⭐ 收藏夹</h3>
+        <div id="fav-list"></div>
+        <button class="btn-ok" id="close-fav" style="margin-top:14px">关闭</button>
+    </div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+<div class="loading" id="loading"><div class="spinner"></div><p>正在准备...</p></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 示例文本数据 ===== */
+const EXAMPLE_POOL = {
+    animal: [
+        'The cat is sleeping on the mat. The dog is running in the park. Birds are singing in the tree. I have a pet rabbit. It likes to eat carrots.',
+        'The lion is the king of the jungle. Elephants are very big and smart. Monkeys like to eat bananas. The dolphin can swim very fast. Penguins live in the cold.',
+        'My cat is white and fluffy. The fish swims in the pond. Ducks walk by the river. The horse runs in the field. A butterfly lands on the flower.',
+        'The bear is sleeping in the cave. The frog jumps into the water. Sheep are eating grass. The turtle walks very slowly. The owl sleeps in the day.'
+    ],
+    color: [
+        'I like red. The sky is blue. The grass is green. My favorite color is yellow. Pink is pretty.',
+        'The sun is yellow. The ocean is blue. Roses are red. Leaves turn orange in autumn. Snow is white.',
+        'My bag is purple. The night sky is dark blue. Gold is shiny. Silver is bright. The rainbow has many colors.',
+        'I wear a pink dress. The tree has green leaves. The fire is red and orange. The moon is white. Clouds are grey.'
+    ],
+    fruit: [
+        'I like apples. The banana is yellow. Do you like oranges? Grapes are sweet. Watermelon is big.',
+        'Strawberries are red and sweet. The pear is juicy. Mangoes are my favorite. Cherries are small and round. The coconut is hard outside.',
+        'I eat an apple every day. The lemon is sour. Blueberries are good for you. The peach is soft and fuzzy. Pineapples grow in warm places.',
+        'We bought fruit at the market. The kiwi is green inside. The grapefruit is bitter. Raspberries are red. The plum is purple and sweet.'
+    ],
+    greeting: [
+        'Hello! How are you? Good morning. My name is Tom. Nice to meet you. Goodbye! See you later.',
+        'Good afternoon! What is your name? I am five years old. How old are you? Let us be friends. Have a nice day!',
+        'Hi there! Welcome to our class. Thank you very much. You are welcome. Excuse me, please. I am sorry.',
+        'Good evening! How was your day? I am happy to see you. Please sit down. May I go to the toilet? See you tomorrow!'
+    ],
+    family: [
+        'This is my mother. My father is tall. I have a big brother. My sister is little. We are a happy family.',
+        'Grandma makes nice food. Grandpa tells good stories. My aunt lives far away. Uncle Tom is very funny. I love my family.',
+        'My mom is a teacher. Dad drives a car to work. Baby brother can walk now. We eat dinner together. Family is the best.'
+    ],
+    school: [
+        'I go to school every day. We learn English and math. The teacher is very kind. I like to read books. We play at break time.',
+        'My classroom is big and bright. I sit with my best friend. We draw pictures in art class. Music class is fun. I love my school.',
+        'We sing songs in class. The playground is big. I bring my lunch to school. We learn to count. School is cool!'
+    ],
+    body: [
+        'I have two eyes. I can see with my eyes. I have two ears. I can hear with my ears. I have one nose.',
+        'Clap your hands. Stamp your feet. Touch your head. Wave your arms. Stand up tall.',
+        'I brush my teeth every morning. Wash your face. Comb your hair. Open your mouth. Close your eyes.'
+    ],
+    food: [
+        'I like pizza. The cake is yummy. Do you like rice? Milk is good for you. I eat bread for breakfast.',
+        'Mom makes soup for lunch. I love chocolate ice cream. The cookie is sweet. We eat noodles on Friday. Fruit is healthy.',
+        'Would you like some juice? The cheese is yellow. I can make a sandwich. The egg is boiled. Dinner is ready!'
+    ]
+};
+// 随机选取示例
+function getRandomExamples() {
+    const keys = Object.keys(EXAMPLE_POOL);
+    // 随机选4个类别
+    const shuffled = keys.sort(() => Math.random() - 0.5).slice(0, 4);
+    const result = {};
+    const labels = { animal:'🐾 动物', color:'🎨 颜色', fruit:'🍎 水果', greeting:'👋 问候', family:'👨‍👩‍👧 家庭', school:'🏫 学校', body:'🤸 身体', food:'🍕 食物' };
+    shuffled.forEach(key => {
+        const pool = EXAMPLE_POOL[key];
+        result[key] = pool[Math.floor(Math.random() * pool.length)];
+    });
+    return { texts: result, keys: shuffled, labels };
+}
+
+/* ===== 提示音模块 ===== */
+class SoundFX {
+    constructor() { this.ctx = null; }
+    _getCtx() {
+        if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+        return this.ctx;
+    }
+    beep(freq = 800, dur = 150, vol = 0.3) {
+        const c = this._getCtx(); if (!c) return;
+        const o = c.createOscillator(); const g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.frequency.value = freq; o.type = 'sine';
+        g.gain.setValueAtTime(vol, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + dur / 1000);
+        o.start(c.currentTime); o.stop(c.currentTime + dur / 1000);
+    }
+    success() { this.beep(880, 120); setTimeout(() => this.beep(1100, 180), 140); }
+    fail() { this.beep(300, 200); }
+    click() { this.beep(600, 60, 0.15); }
+    done() { this.beep(880, 100); setTimeout(() => this.beep(1100, 100), 120); setTimeout(() => this.beep(1320, 200), 250); }
+}
+
+/* ===== 学习统计模块 ===== */
+class Stats {
+    constructor() { this.key = 'reading_stats'; this.data = this._load(); }
+    _load() {
+        try { const d = JSON.parse(localStorage.getItem(this.key)); return d || this._default(); } catch(e) { return this._default(); }
+    }
+    _default() { return { total: 0, stars: 0, scores: [], mistakes: [], history: [] }; }
+    save() { localStorage.setItem(this.key, JSON.stringify(this.data)); }
+    addScore(score, stars, text) {
+        this.data.total++;
+        this.data.stars += stars;
+        this.data.scores.push(score);
+        if (this.data.scores.length > 200) this.data.scores = this.data.scores.slice(-200);
+        this.data.history.push({ text, score, stars, time: Date.now() });
+        if (this.data.history.length > 100) this.data.history = this.data.history.slice(-100);
+        if (score < 60) {
+            this.data.mistakes.push({ text, score, stars, time: Date.now() });
+            if (this.data.mistakes.length > 50) this.data.mistakes = this.data.mistakes.slice(-50);
+        }
+        this.save();
+    }
+    getAvg() { const s = this.data.scores; return s.length ? Math.round(s.reduce((a, b) => a + b, 0) / s.length) : 0; }
+    getStarDist() {
+        const d = [0, 0, 0, 0, 0];
+        this.data.history.forEach(h => { if (h.stars >= 1 && h.stars <= 5) d[h.stars - 1]++; });
+        return d;
+    }
+    getMistakes() { return this.data.mistakes.slice().reverse(); }
+    reset() { this.data = this._default(); this.save(); }
+}
+
+/* ===== IndexedDB 录音存储 ===== */
+class RecordStore {
+    constructor() {
+        this.dbName = 'ReadingRecorderDB';
+        this.storeName = 'recordings';
+        this.db = null;
+        this.ready = this._init();
+    }
+    _init() {
+        return new Promise((resolve) => {
+            if (!window.indexedDB) { resolve(false); return; }
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    db.createObjectStore(this.storeName, { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = (e) => { this.db = e.target.result; resolve(true); };
+            req.onerror = () => { resolve(false); };
+        });
+    }
+    async save(id, blob) {
+        const ok = await this.ready;
+        if (!ok || !this.db) return false;
+        return new Promise((resolve) => {
+            const tx = this.db.transaction(this.storeName, 'readwrite');
+            tx.objectStore(this.storeName).put({ id, blob });
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+        });
+    }
+    async get(id) {
+        const ok = await this.ready;
+        if (!ok || !this.db) return null;
+        return new Promise((resolve) => {
+            const tx = this.db.transaction(this.storeName, 'readonly');
+            const req = tx.objectStore(this.storeName).get(id);
+            req.onsuccess = () => resolve(req.result ? req.result.blob : null);
+            req.onerror = () => resolve(null);
+        });
+    }
+    async delete(id) {
+        const ok = await this.ready;
+        if (!ok || !this.db) return false;
+        return new Promise((resolve) => {
+            const tx = this.db.transaction(this.storeName, 'readwrite');
+            tx.objectStore(this.storeName).delete(id);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+        });
+    }
+    async clear() {
+        const ok = await this.ready;
+        if (!ok || !this.db) return false;
+        return new Promise((resolve) => {
+            const tx = this.db.transaction(this.storeName, 'readwrite');
+            tx.objectStore(this.storeName).clear();
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+        });
+    }
+}
+
+/* ===== 文本解析 ===== */
+class TextParser {
+    constructor() { this.abbr = ['Mr.','Mrs.','Ms.','Dr.','Prof.','a.m.','p.m.','e.g.','i.e.']; }
+    parse(text) {
+        if (!text) return [];
+        text = text.trim().replace(/\s+/g, ' ');
+        let p = text;
+        this.abbr.forEach(a => { p = p.replace(new RegExp(a.replace('.','\\.'),'gi'), m => m.replace(/\./g,'§DOT§')); });
+        const sents = []; let cur = '';
+        for (let i = 0; i < p.length; i++) {
+            cur += p[i];
+            if (/[.!?]/.test(p[i])) { let j = i+1; while(j < p.length && /[""''")\]\s]/.test(p[j])){cur+=p[j];j++;} sents.push(cur.trim()); cur=''; i=j-1; }
+        }
+        if (cur.trim()) sents.push(cur.trim());
+        return sents.map((s,i) => {
+            const t = s.replace(/§DOT§/g,'.');
+            const w = t.replace(/[^\w\s'-]/g,'').split(/\s+/).filter(x=>x);
+            return {id:i, text:t, words:w, wordCount:w.length};
+        }).filter(s => s.text.length > 0);
+    }
+}
+
+/* ===== TTS引擎 ===== */
+class TTSEngine {
+    constructor() {
+        this.synth = window.speechSynthesis;
+        this.currentVoice = null;
+        this.rate = 0.8;
+        this.isSpeaking = false;
+        this.queue = [];
+        this.queueIndex = 0;
+        this.onQueueEnd = null;
+        this.preferredVoices = [
+            { name: 'Siri', label: '🎙️ Siri声音' },
+            { name: 'Samantha', label: '🌿 自然女声' },
+            { name: 'Karen', label: '🦘 澳式女声' }
+        ];
+        this.availableVoices = [];
+        this.highlightTimer = null;
+        this.init();
+    }
+    init() {
+        if (!this.synth) return;
+        this._loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = () => this._loadVoices();
+    }
+    _loadVoices() {
+        const all = this.synth.getVoices();
+        this.availableVoices = all.filter(v => v.lang.startsWith('en-GB') || v.lang.startsWith('en-US') || v.lang.startsWith('en-AU'));
+        if (this.availableVoices.length === 0) this.availableVoices = all.filter(v => v.lang.startsWith('en'));
+        this.availableVoices.sort((a, b) => {
+            const aIdx = this.preferredVoices.findIndex(pv => a.name.includes(pv.name) || pv.name.includes(a.name));
+            const bIdx = this.preferredVoices.findIndex(pv => b.name.includes(pv.name) || pv.name.includes(b.name));
+            if (aIdx === -1 && bIdx === -1) return 0;
+            if (aIdx === -1) return 1;
+            if (bIdx === -1) return -1;
+            return aIdx - bIdx;
+        });
+        if (this.availableVoices.length > 0 && !this.currentVoice) this.currentVoice = this.availableVoices[0];
+    }
+    getVoiceOptions() {
+        return this.availableVoices.map((v, i) => {
+            const preferred = this.preferredVoices.find(pv => v.name.includes(pv.name) || pv.name.includes(v.name));
+            const flag = v.lang.startsWith('en-GB') ? '🇬🇧 ' : v.lang.startsWith('en-US') ? '🇺🇸 ' : '🌐 ';
+            const label = preferred ? flag + preferred.label : flag + '女声 ' + (i + 1);
+            return { id: i, name: v.name, lang: v.lang, label, voice: v };
+        });
+    }
+    setVoice(i) { if (i >= 0 && i < this.availableVoices.length) { this.currentVoice = this.availableVoices[i]; return true; } return false; }
+    setRate(r) { this.rate = Math.max(0.25, Math.min(1.5, r)); return this.rate; }
+    getRate() { return this.rate; }
+    speak(text, onEnd, highlightFn, words) {
+        if (!this.synth || !this.currentVoice) return false;
+        this.stop();
+        const u = new SpeechSynthesisUtterance(text);
+        u.voice = this.currentVoice; u.rate = this.rate; u.pitch = 1.0; u.volume = 1.0; u.lang = this.currentVoice.lang;
+        if (highlightFn && words && words.length > 0) {
+            const wps = words.length * 2.5;
+            const interval = Math.max(200, (60 / this.rate) / wps * 1000);
+            let wi = 0;
+            this.highlightTimer = setInterval(() => {
+                if (wi < words.length) { highlightFn(wi); wi++; } else clearInterval(this.highlightTimer);
+            }, interval);
+        }
+        u.onstart = () => { this.isSpeaking = true; };
+        u.onend = () => { this.isSpeaking = false; if (this.highlightTimer) clearInterval(this.highlightTimer); if (onEnd) onEnd(); };
+        u.onerror = () => { this.isSpeaking = false; if (this.highlightTimer) clearInterval(this.highlightTimer); };
+        setTimeout(() => { this.synth.speak(u); }, this._isIOS() ? 100 : 0);
+        return true;
+    }
+    speakQueue(texts, onEachEnd, onAllEnd) {
+        this.queue = texts; this.queueIndex = 0; this.onQueueEnd = onAllEnd;
+        const next = () => {
+            if (this.queueIndex >= this.queue.length) { if (onAllEnd) onAllEnd(); return; }
+            this.speak(this.queue[this.queueIndex], () => { if (onEachEnd) onEachEnd(this.queueIndex); this.queueIndex++; next(); });
+        };
+        next();
+    }
+    stopQueue() { this.queue = []; this.queueIndex = 0; this.stop(); }
+    stop() { if (this.synth) { this.synth.cancel(); this.isSpeaking = false; } if (this.highlightTimer) clearInterval(this.highlightTimer); }
+    markUserInteracted() { this._hasUserInteracted = true; }
+    _isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+}
+
+/* ===== 录音引擎 ===== */
+class RecordEngine {
+    constructor() {
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.audioBlob = null;
+        this.audioUrl = null;
+        this.isRecording = false;
+        this.stream = null;
+        // 分句录音收集
+        this.allRecordings = []; // 存储每句的 Blob
+    }
+    async startRecording() {
+        try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // iOS Safari 用 mp4，安卓用 webm
+            const mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
+            this.mediaRecorder = new MediaRecorder(this.stream, mimeType !== 'audio/webm' ? { mimeType } : {});
+            this.audioChunks = [];
+            this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.audioChunks.push(e.data); };
+            this.mediaRecorder.onstop = () => {
+                const type = this.audioChunks[0] && this.audioChunks[0].type ? this.audioChunks[0].type : 'audio/mp4';
+                this.audioBlob = new Blob(this.audioChunks, { type });
+                this.audioUrl = URL.createObjectURL(this.audioBlob);
+                this.isRecording = false;
+                // 自动保存到分句录音列表
+                if (this.audioBlob.size > 0) this.allRecordings.push(this.audioBlob);
+            };
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            return true;
+        } catch(e) {
+            console.error('录音启动失败:', e);
+            this.isRecording = false;
+            return false;
+        }
+    }
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.stream.getTracks().forEach(t => t.stop());
+        }
+        this.isRecording = false;
+    }
+    getAudioUrl() { return this.audioUrl; }
+    playRecording() {
+        if (!this.audioUrl) return;
+        const audio = new Audio(this.audioUrl);
+        audio.play();
+        return audio;
+    }
+    checkSupport() {
+        return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    }
+    // 合并所有分句录音为一个完整录音
+    async mergeRecordings() {
+        if (!this.allRecordings.length) return null;
+        if (this.allRecordings.length === 1) return this.allRecordings[0];
+        // 用 AudioContext 拼接音频
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buffers = [];
+            for (const blob of this.allRecordings) {
+                const arrayBuf = await blob.arrayBuffer();
+                const audioBuf = await ctx.decodeAudioData(arrayBuf);
+                buffers.push(audioBuf);
+            }
+            // 计算总长度
+            const totalLen = buffers.reduce((sum, b) => sum + b.length, 0);
+            const sampleRate = buffers[0].sampleRate;
+            const channels = buffers[0].numberOfChannels;
+            const merged = ctx.createBuffer(channels, totalLen, sampleRate);
+            let offset = 0;
+            for (const buf of buffers) {
+                for (let ch = 0; ch < channels; ch++) {
+                    merged.getChannelData(ch).set(buf.getChannelData(ch), offset);
+                }
+                offset += buf.length;
+            }
+            // 编码为 WAV
+            const wavBlob = this._encodeWAV(merged);
+            ctx.close();
+            return wavBlob;
+        } catch(e) {
+            console.error('合并录音失败:', e);
+            // 降级：直接返回最后一段
+            return this.allRecordings[this.allRecordings.length - 1];
+        }
+    }
+    _encodeWAV(audioBuffer) {
+        const numChannels = audioBuffer.numberOfChannels;
+        const sampleRate = audioBuffer.sampleRate;
+        const format = 1; // PCM
+        const bitDepth = 16;
+        const bytesPerSample = bitDepth / 8;
+        const blockAlign = numChannels * bytesPerSample;
+        const dataLength = audioBuffer.length * blockAlign;
+        const buffer = new ArrayBuffer(44 + dataLength);
+        const view = new DataView(buffer);
+        // WAV header
+        const writeStr = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+        writeStr(0, 'RIFF');
+        view.setUint32(4, 36 + dataLength, true);
+        writeStr(8, 'WAVE');
+        writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, format, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * blockAlign, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, bitDepth, true);
+        writeStr(36, 'data');
+        view.setUint32(40, dataLength, true);
+        // PCM data
+        const channels = [];
+        for (let ch = 0; ch < numChannels; ch++) channels.push(audioBuffer.getChannelData(ch));
+        let offset = 44;
+        for (let i = 0; i < audioBuffer.length; i++) {
+            for (let ch = 0; ch < numChannels; ch++) {
+                let sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                view.setInt16(offset, sample, true);
+                offset += 2;
+            }
+        }
+        return new Blob([buffer], { type: 'audio/wav' });
+    }
+    // 清空分句录音
+    clearRecordings() { this.allRecordings = []; }
+}
+
+/* ===== 评分引擎 ===== */
+class ScoreEngine {
+    constructor() {
+        this.recognition = null;
+        this.isSupported = false;
+        this.feedbackLevels = {
+            PERFECT: {stars:5, message:'Perfect! 🌟', color:'#FFD700'},
+            GREAT: {stars:4, message:'Well done! ⭐', color:'#FFA500'},
+            GOOD: {stars:3, message:'Good job! 👍', color:'#90EE90'},
+            OKAY: {stars:2, message:'Keep trying! 💪', color:'#87CEEB'},
+            TRY_AGAIN: {stars:1, message:'Try again! 🌈', color:'#FFB6C1'}
+        };
+        this.init();
+    }
+    init() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SR) {
+            this.recognition = new SR();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'en-US';
+            this.isSupported = true;
+        }
+    }
+    async evaluate(originalText) {
+        if (this.isSupported && this.recognition) {
+            return new Promise((resolve) => {
+                let resolved = false;
+                const done = (result) => { if(!resolved){resolved=true; resolve(result);} };
+                try {
+                    this.recognition.onresult = (e) => { done(this._calcScore(originalText, e.results[0][0].transcript)); };
+                    this.recognition.onerror = () => { done(this._encourageScore()); };
+                    this.recognition.onend = () => {};
+                    this.recognition.start();
+                    setTimeout(() => { try{this.recognition.abort();}catch(e){} done(this._encourageScore()); }, 5000);
+                } catch(e) { done(this._encourageScore()); }
+            });
+        } else {
+            return this._encourageScore();
+        }
+    }
+    _encourageScore() {
+        const rand = Math.random();
+        const level = rand <= 0.15 ? 'GREAT' : 'PERFECT';
+        const f = this.feedbackLevels[level];
+        return {score: level==='PERFECT'? 95 : 82, stars: f.stars, message: f.message, color: f.color, level, recognized: '(录音完成，继续加油！)'};
+    }
+    _calcScore(original, recognized) {
+        if (!original || !recognized) return this._encourageScore();
+        const ow = original.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(x=>x);
+        const rw = recognized.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(x=>x);
+        const dp = Array(ow.length+1).fill(null).map(()=>Array(rw.length+1).fill(0));
+        for(let i=1;i<=ow.length;i++) for(let j=1;j<=rw.length;j++){
+            if(ow[i-1]===rw[j-1]) dp[i][j]=dp[i-1][j-1]+1;
+            else dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]);
+        }
+        const matched = dp[ow.length][rw.length];
+        const score = Math.round((matched/ow.length)*100);
+        let level;
+        if(score>=90) level='PERFECT'; else if(score>=75) level='GREAT'; else if(score>=60) level='GOOD'; else if(score>=40) level='OKAY'; else level='TRY_AGAIN';
+        const f = this.feedbackLevels[level];
+        return {score, stars:f.stars, message:f.message, color:f.color, level, recognized: '识别: "' + recognized + '"'};
+    }
+}
+
+/* ===== 主控制器 ===== */
+class App {
+    constructor() {
+        this.parser = new TextParser();
+        this.tts = new TTSEngine();
+        this.recorder = new RecordEngine();
+        this.scorer = new ScoreEngine();
+        this.sfx = new SoundFX();
+        this.stats = new Stats();
+        this.recordStore = new RecordStore();
+        this.sentences = [];
+        this.currentIndex = -1;
+        this.isRecording = false;
+        this.isFullPlaying = false;
+        this.isFullReading = false;
+        this.el = {};
+        this._scoreResolve = null;
+        this._fullReadResolve = null;
+        this.currentExamples = {};
+        this._currentAudio = null;
+        this.init();
+    }
+    init() {
+        this._cache();
+        this._bind();
+        this._loadSettings();
+        this._loadTheme();
+        this._updateStatsUI();
+        this._refreshExamples();
+        setTimeout(() => this._loadVoices(), 500);
+        if (!this.recorder.checkSupport()) {
+            this._toast('您的浏览器不支持录音，请使用 Safari 或 Chrome');
+        }
+        // 恢复未完成的练习进度
+        this._restoreProgress();
+    }
+    _cache() {
+        const g = id => document.getElementById(id);
+        this.el = {
+            voiceSelect: g('voice-select'), rateSlider: g('rate-slider'), rateValue: g('rate-value'),
+            textInput: g('text-input'), parseBtn: g('parse-btn'), fullActions: g('full-actions'),
+            btnFullPlay: g('btn-full-play'), btnFullRec: g('btn-full-rec'),
+            sentences: g('sentences-container'), fullProgress: g('full-progress'),
+            fpText: g('fp-text'), fpFill: g('fp-fill'), fpStatus: g('fp-status'),
+            scoreModal: g('score-modal'), scoreStars: g('score-stars'),
+            scoreMessage: g('score-message'), scoreDetail: g('score-detail'),
+            scoreRecognized: g('score-recognized'), closeModal: g('close-modal'),
+            recordModal: g('record-modal'), rmTitle: g('rm-title'), rmTip: g('rm-tip'),
+            rmWaves: g('rm-waves'), rmBtns: g('rm-btns'), btnStopRec: g('btn-stop-rec'),
+            loading: g('loading'), toast: g('toast'), confetti: g('confetti'),
+            // 新增元素
+            btnRetry: g('btn-retry'), btnReplay: g('btn-replay'), btnBack: g('btn-back'),
+            statTotal: g('stat-total'), statStars: g('stat-stars'), statAvg: g('stat-avg'),
+            mistakeModal: g('mistake-modal'), recList: g('rec-list'), closeMistakes: g('close-mistakes'),
+            reportModal: g('report-modal'), reportContent: g('report-content'), closeReport: g('close-report'),
+            btnMistakes: g('btn-mistakes'), btnReport: g('btn-report'),
+            btnResetData: g('btn-reset-data'), btnResetData2: g('btn-reset-data2'),
+            // 新增：收藏和录音库
+            btnFavAdd: g('btn-fav-add'), btnFavList: g('btn-fav-list'),
+            favModal: g('fav-modal'), favList: g('fav-list'), closeFav: g('close-fav')
+        };
+    }
+    _bind() {
+        this.el.voiceSelect.addEventListener('change', e => { this.tts.setVoice(parseInt(e.target.value)); this._toast('声音已切换'); this.sfx.click(); });
+        this.el.rateSlider.addEventListener('input', e => {
+            const r = parseFloat(e.target.value);
+            this.tts.setRate(r);
+            this.el.rateValue.textContent = r.toFixed(2) + 'x';
+        });
+        this.el.parseBtn.addEventListener('click', () => this._parse());
+        this.el.closeModal.addEventListener('click', () => this._hideScore());
+        this.el.scoreModal.addEventListener('click', e => { if(e.target===this.el.scoreModal) this._hideScore(); });
+        this.el.btnStopRec.addEventListener('click', () => this._onStopRecording());
+        this.el.btnFullPlay.addEventListener('click', () => this._fullPlay());
+        this.el.btnFullRec.addEventListener('click', () => this._fullRead());
+        document.addEventListener('touchstart', () => this.tts.markUserInteracted(), {once:true});
+        document.addEventListener('click', () => this.tts.markUserInteracted(), {once:true});
+
+        // 主题切换
+        document.querySelectorAll('.theme-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const t = dot.dataset.theme;
+                if (t === 'auto') {
+                    this._startAutoTheme();
+                    this.sfx.click();
+                    this._toast('已开启自动切换（长按设置时段）');
+                } else {
+                    this._setTheme(t);
+                    this.sfx.click();
+                }
+            });
+            // 长按自动切换按钮打开时段设置
+            let longPressTimer = null;
+            dot.addEventListener('touchstart', (e) => {
+                if (dot.dataset.theme === 'auto') {
+                    longPressTimer = setTimeout(() => { this._showAutoThemeSettings(); longPressTimer = null; }, 800);
+                }
+            });
+            dot.addEventListener('touchend', () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } });
+            dot.addEventListener('touchmove', () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } });
+        });
+
+        // 示例文本按钮
+        document.getElementById('btn-refresh-ex').addEventListener('click', () => {
+            this._refreshExamples();
+            this.sfx.click();
+            this._toast('已换一批新内容');
+        });
+        // 示例按钮事件委托
+        this.el.exampleBar = document.getElementById('example-bar');
+        this.el.exampleBar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-ex[data-key]');
+            if (!btn) return;
+            const key = btn.dataset.key;
+            if (this.currentExamples[key]) {
+                this.el.textInput.value = this.currentExamples[key];
+                this.sfx.click();
+                this._toast('已填入示例文本');
+            }
+        });
+
+        // 重试按钮（回到当句，不自动跳转下一句）
+        this.el.btnRetry.addEventListener('click', () => {
+            this._hideScore(false);
+            this.sfx.click();
+            setTimeout(() => this._startRead(this.currentIndex), 300);
+        });
+        // 评分弹窗中的回听和返回
+        this.el.btnReplay.addEventListener('click', () => {
+            this.sfx.click();
+            this.recorder.playRecording();
+        });
+        this.el.btnBack.addEventListener('click', () => {
+            this._hideScore(false);
+            this._unhighlight(this.currentIndex);
+        });
+
+        // 录音库和报告
+        this.el.btnMistakes.addEventListener('click', () => this._showRecordings());
+        this.el.closeMistakes.addEventListener('click', () => this.el.mistakeModal.classList.remove('show'));
+        this.el.mistakeModal.addEventListener('click', e => { if(e.target===this.el.mistakeModal) this.el.mistakeModal.classList.remove('show'); });
+
+        this.el.btnReport.addEventListener('click', () => this._showReport());
+        this.el.closeReport.addEventListener('click', () => this.el.reportModal.classList.remove('show'));
+        this.el.reportModal.addEventListener('click', e => { if(e.target===this.el.reportModal) this.el.reportModal.classList.remove('show'); });
+        // 数据重置（二次确认防误触）
+        this.el.btnResetData.addEventListener('click', () => this._confirmReset());
+        // 录音库清空
+        this.el.btnResetData2.addEventListener('click', () => this._confirmClearRecordings());
+
+        // 收藏本文
+        this.el.btnFavAdd.addEventListener('click', () => this._addFavorite());
+        // 收藏夹
+        this.el.btnFavList.addEventListener('click', () => this._showFavorites());
+        this.el.closeFav.addEventListener('click', () => this.el.favModal.classList.remove('show'));
+        this.el.favModal.addEventListener('click', e => { if(e.target===this.el.favModal) this.el.favModal.classList.remove('show'); });
+    }
+    /* ===== 主题 ===== */
+    _setTheme(t) {
+        if (t === 'default') document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.setAttribute('data-theme', t);
+        document.querySelectorAll('.theme-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === t));
+        localStorage.setItem('theme', t);
+        this._currentTheme = t;
+        // 如果手动选择了主题，取消自动切换
+        if (t !== 'auto') {
+            localStorage.setItem('theme-mode', 'manual');
+            if (this._autoThemeTimer) clearInterval(this._autoThemeTimer);
+        }
+    }
+    _loadTheme() {
+        // 读取主题模式：manual 或 auto
+        const mode = localStorage.getItem('theme-mode');
+        const saved = localStorage.getItem('theme');
+        if (mode === 'auto') {
+            this._startAutoTheme();
+        } else {
+            if (saved && saved !== 'default') this._setTheme(saved);
+        }
+    }
+    _startAutoTheme() {
+        // 读取自定义时段（默认 19:00-07:00）
+        const cfg = localStorage.getItem('theme-auto-cfg');
+        let nightStart = 19, nightEnd = 7;
+        if (cfg) {
+            try { const c = JSON.parse(cfg); nightStart = c.start || 19; nightEnd = c.end || 7; } catch(e) {}
+        }
+        this._applyAutoTheme(nightStart, nightEnd);
+        // 每分钟检查一次
+        if (this._autoThemeTimer) clearInterval(this._autoThemeTimer);
+        this._autoThemeTimer = setInterval(() => this._applyAutoTheme(nightStart, nightEnd), 60000);
+        localStorage.setItem('theme-mode', 'auto');
+        // 标记当前为auto（不改变圆点高亮）
+        this._currentTheme = 'auto';
+    }
+    _applyAutoTheme(nightStart, nightEnd) {
+        const hour = new Date().getHours();
+        const isNight = nightStart > nightEnd
+            ? (hour >= nightStart || hour < nightEnd)
+            : (hour >= nightStart && hour < nightEnd);
+        const target = isNight ? 'dark' : 'default';
+        if (target === 'default') document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.setAttribute('data-theme', target);
+        // 更新圆点高亮
+        document.querySelectorAll('.theme-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === target));
+    }
+    _showAutoThemeSettings() {
+        const cfg = localStorage.getItem('theme-auto-cfg');
+        let nightStart = 19, nightEnd = 7;
+        if (cfg) { try { const c = JSON.parse(cfg); nightStart = c.start || 19; nightEnd = c.end || 7; } catch(e) {} }
+        const startStr = String(nightStart).padStart(2, '0') + ':00';
+        const endStr = String(nightEnd).padStart(2, '0') + ':00';
+        // 用简单的 prompt 获取时段设置
+        const input = prompt('请设置夜间模式时段（格式：开始-结束，如 19-7）\n当前设置：' + startStr + ' ~ ' + endStr + '\n\n留空则取消', nightStart + '-' + nightEnd);
+        if (!input) return;
+        const match = input.match(/(\d{1,2})\s*[-~]\s*(\d{1,2})/);
+        if (match) {
+            const s = Math.min(23, Math.max(0, parseInt(match[1])));
+            const e = Math.min(23, Math.max(0, parseInt(match[2])));
+            localStorage.setItem('theme-auto-cfg', JSON.stringify({ start: s, end: e }));
+            this._startAutoTheme();
+            this._toast('已设置自动切换：' + String(s).padStart(2, '0') + ':00 ~ ' + String(e).padStart(2, '0') + ':00');
+        } else {
+            this._toast('格式不正确，已取消');
+        }
+    }
+    /* ===== 统计 ===== */
+    _updateStatsUI() {
+        this.el.statTotal.textContent = this.stats.data.total;
+        this.el.statStars.textContent = this.stats.data.stars;
+        this.el.statAvg.textContent = this.stats.getAvg();
+    }
+    /* ===== 录音库 ===== */
+    _getRecordingMeta() {
+        try { return JSON.parse(localStorage.getItem('rr-recordings')) || []; } catch(e) { return []; }
+    }
+    _saveRecordingMeta(list) {
+        localStorage.setItem('rr-recordings', JSON.stringify(list));
+    }
+    async _saveRecording(blob, name) {
+        const id = Date.now();
+        const now = new Date();
+        const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        const sizeStr = (blob.size / (1024*1024)).toFixed(1) + 'MB';
+        const meta = { id, name: name + '_' + dateStr.replace(/-/g,''), date: dateStr, size: sizeStr };
+        // 尝试保存到 IndexedDB
+        const dbOk = await this.recordStore.ready;
+        if (dbOk) {
+            await this.recordStore.save(id, blob);
+        } else {
+            // 降级：base64 存 localStorage，只保留最近5条
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+            meta.blob = base64;
+        }
+        const list = this._getRecordingMeta();
+        list.unshift(meta);
+        // 如果不用 IndexedDB，限制5条
+        if (!dbOk && list.length > 5) {
+            const removed = list.splice(5);
+            // 清理多余的 base64 数据
+        }
+        this._saveRecordingMeta(list);
+        this._toast('录音已保存到录音库');
+    }
+    async _showRecordings() {
+        const list = this._getRecordingMeta();
+        const container = this.el.recList;
+        if (!list.length) {
+            container.innerHTML = '<div class="rec-empty">暂无录音，完成全文跟读后自动保存</div>';
+        } else {
+            container.innerHTML = list.map(r =>
+                '<div class="rec-item" data-id="'+r.id+'"><div class="ri-info"><div class="ri-name">'+this._esc(r.name)+'</div><div class="ri-meta">'+r.date+' · '+r.size+'</div></div><div class="ri-btns"><button class="ri-btn ri-btn-play" data-id="'+r.id+'">▶ 播放</button><button class="ri-btn ri-btn-share" data-id="'+r.id+'">↗ 分享</button><button class="ri-btn ri-btn-del" data-id="'+r.id+'">✕</button></div></div>'
+            ).join('');
+            // 绑定事件
+            container.querySelectorAll('.ri-btn-play').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = parseInt(btn.dataset.id);
+                    const meta = list.find(r => r.id === id);
+                    if (!meta) return;
+                    let blob = null;
+                    const dbOk = await this.recordStore.ready;
+                    if (dbOk) {
+                        blob = await this.recordStore.get(id);
+                    } else if (meta.blob) {
+                        // base64 转 Blob
+                        const res = await fetch(meta.blob);
+                        blob = await res.blob();
+                    }
+                    if (!blob) { this._toast('录音文件不存在'); return; }
+                    if (this._currentAudio) { this._currentAudio.pause(); this._currentAudio = null; }
+                    const url = URL.createObjectURL(blob);
+                    this._currentAudio = new Audio(url);
+                    this._currentAudio.play();
+                    this.sfx.click();
+                });
+            });
+            container.querySelectorAll('.ri-btn-share').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = parseInt(btn.dataset.id);
+                    const meta = list.find(r => r.id === id);
+                    if (!meta) return;
+                    let blob = null;
+                    const dbOk = await this.recordStore.ready;
+                    if (dbOk) {
+                        blob = await this.recordStore.get(id);
+                    } else if (meta.blob) {
+                        const res = await fetch(meta.blob);
+                        blob = await res.blob();
+                    }
+                    if (!blob) { this._toast('录音文件不存在'); return; }
+                    const file = new File([blob], meta.name + '.wav', { type: 'audio/wav' });
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            if (navigator.canShare({ files: [file] })) {
+                                await navigator.share({ files: [file], title: '英语跟读录音' });
+                                return;
+                            }
+                        } catch(e) { /* 用户取消 */ }
+                    }
+                    // 不支持分享则下载
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = meta.name + '.wav';
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    this._toast('已下载录音');
+                });
+            });
+            container.querySelectorAll('.ri-btn-del').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = parseInt(btn.dataset.id);
+                    if (!btn.dataset.confirming) {
+                        btn.dataset.confirming = 'yes';
+                        btn.textContent = '确认?';
+                        btn.style.background = '#E17055';
+                        setTimeout(() => {
+                            if (btn.dataset.confirming) {
+                                btn.dataset.confirming = '';
+                                btn.textContent = '✕';
+                                btn.style.background = '#FF6B6B';
+                            }
+                        }, 3000);
+                        return;
+                    }
+                    // 确认删除
+                    const dbOk = await this.recordStore.ready;
+                    if (dbOk) await this.recordStore.delete(id);
+                    const newList = list.filter(r => r.id !== id);
+                    this._saveRecordingMeta(newList);
+                    this._showRecordings();
+                    this._toast('录音已删除');
+                });
+            });
+        }
+        this.el.mistakeModal.classList.add('show');
+        this.sfx.click();
+    }
+    _confirmClearRecordings() {
+        const btn = this.el.btnResetData2;
+        if (btn.dataset.confirming === 'yes') {
+            this._saveRecordingMeta([]);
+            this.recordStore.clear();
+            this.el.mistakeModal.classList.remove('show');
+            this._toast('录音库已清空');
+            btn.textContent = '🗑️ 清空录音库';
+            btn.style.borderColor = '#ccc';
+            btn.style.color = '#aaa';
+            btn.dataset.confirming = '';
+        } else {
+            btn.textContent = '⚠️ 再点一次确认清空';
+            btn.style.borderColor = '#FF6B6B';
+            btn.style.color = '#FF6B6B';
+            btn.dataset.confirming = 'yes';
+            setTimeout(() => {
+                if (btn.dataset.confirming === 'yes') {
+                    btn.textContent = '🗑️ 清空录音库';
+                    btn.style.borderColor = '#ccc';
+                    btn.style.color = '#aaa';
+                    btn.dataset.confirming = '';
+                }
+            }, 3000);
+        }
+    }
+    /* ===== 收藏夹 ===== */
+    _getFavorites() {
+        try { return JSON.parse(localStorage.getItem('rr-favorites')) || []; } catch(e) { return []; }
+    }
+    _saveFavorites(list) {
+        localStorage.setItem('rr-favorites', JSON.stringify(list));
+    }
+    _addFavorite() {
+        const text = this.el.textInput.value.trim();
+        if (!text) { this._toast('请先输入文本'); return; }
+        const list = this._getFavorites();
+        // 检查是否已收藏
+        if (list.some(f => f.text === text)) { this._toast('本文已收藏过了'); return; }
+        const now = new Date();
+        const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        const title = text.substring(0, 15) + (text.length > 15 ? '...' : '');
+        list.unshift({ id: Date.now(), text, title, date: dateStr });
+        if (list.length > 50) list.length = 50;
+        this._saveFavorites(list);
+        this._toast('已收藏！');
+        this.sfx.click();
+    }
+    _showFavorites() {
+        const list = this._getFavorites();
+        const container = this.el.favList;
+        if (!list.length) {
+            container.innerHTML = '<div class="fav-empty">暂无收藏</div>';
+        } else {
+            container.innerHTML = list.map(f =>
+                '<div class="fav-item" data-id="'+f.id+'"><div class="fi-info"><div class="fi-title">'+this._esc(f.title)+'</div><div class="fi-date">'+f.date+'</div></div><div class="fi-btns"><button class="fi-btn fi-btn-load" data-id="'+f.id+'">加载</button><button class="fi-btn fi-btn-del" data-id="'+f.id+'">✕</button></div></div>'
+            ).join('');
+            container.querySelectorAll('.fi-btn-load').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = parseInt(btn.dataset.id);
+                    const fav = list.find(f => f.id === id);
+                    if (fav) {
+                        this.el.textInput.value = fav.text;
+                        this.el.favModal.classList.remove('show');
+                        this._toast('已加载收藏文本');
+                        this.sfx.click();
+                    }
+                });
+            });
+            container.querySelectorAll('.fi-btn-del').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = parseInt(btn.dataset.id);
+                    if (!btn.dataset.confirming) {
+                        btn.dataset.confirming = 'yes';
+                        btn.textContent = '确认?';
+                        btn.style.background = '#E17055';
+                        setTimeout(() => {
+                            if (btn.dataset.confirming) {
+                                btn.dataset.confirming = '';
+                                btn.textContent = '✕';
+                                btn.style.background = '#FF6B6B';
+                            }
+                        }, 3000);
+                        return;
+                    }
+                    const newList = list.filter(f => f.id !== id);
+                    this._saveFavorites(newList);
+                    this._showFavorites();
+                    this._toast('已删除收藏');
+                });
+            });
+        }
+        this.el.favModal.classList.add('show');
+        this.sfx.click();
+    }
+    /* ===== 练习进度保存/恢复 ===== */
+    _saveProgress() {
+        if (!this.sentences.length) return;
+        const text = this.el.textInput.value.trim();
+        if (!text) return;
+        const progress = {
+            text,
+            sentences: this.sentences.map(s => ({ done: !!s.done, bestScore: s.bestScore || 0 })),
+            time: Date.now()
+        };
+        localStorage.setItem('rr-progress', JSON.stringify(progress));
+    }
+    _restoreProgress() {
+        try {
+            const raw = localStorage.getItem('rr-progress');
+            if (!raw) return;
+            const progress = JSON.parse(raw);
+            if (!progress || !progress.text || !progress.sentences) return;
+            // 检查是否有未完成的句子
+            const hasIncomplete = progress.sentences.some(s => !s.done);
+            if (!hasIncomplete) {
+                // 全部完成，清除进度
+                localStorage.removeItem('rr-progress');
+                return;
+            }
+            // 恢复文本
+            this.el.textInput.value = progress.text;
+            // 解析文本
+            this.sentences = this.parser.parse(progress.text);
+            if (!this.sentences.length) return;
+            // 恢复 done 状态和 bestScore
+            progress.sentences.forEach((ps, i) => {
+                if (i < this.sentences.length) {
+                    this.sentences[i].done = !!ps.done;
+                    this.sentences[i].bestScore = ps.bestScore || 0;
+                }
+            });
+            // 渲染
+            this._render();
+            this.el.fullActions.style.display = 'flex';
+            this._toast('已恢复上次练习进度');
+        } catch(e) { /* 忽略恢复错误 */ }
+    }
+    /* ===== 学习报告 ===== */
+    _showReport() {
+        const c = this.el.reportContent;
+        const d = this.stats.data;
+        const dist = this.stats.getStarDist();
+        const maxDist = Math.max(...dist, 1);
+        const labels = ['1星', '2星', '3星', '4星', '5星'];
+        const fills = ['f1', 'f2', 'f3', 'f4', 'f5'];
+
+        c.innerHTML =
+            '<div class="report-row"><span class="rr-label">总练习次数</span><span class="rr-value">' + d.total + '</span></div>' +
+            '<div class="report-row"><span class="rr-label">总星星数</span><span class="rr-value">' + d.stars + '</span></div>' +
+            '<div class="report-row"><span class="rr-label">平均得分</span><span class="rr-value">' + this.stats.getAvg() + '</span></div>' +
+            '<div class="report-row"><span class="rr-label">错题数</span><span class="rr-value">' + d.mistakes.length + '</span></div>' +
+            '<div class="report-chart"><div style="font-size:.85rem;color:var(--text2);margin-bottom:8px">星星分布</div>' +
+            dist.map((n, i) =>
+                '<div class="report-bar-row"><span class="report-bar-label">' + labels[i] + '</span>' +
+                '<div class="report-bar-track"><div class="report-bar-fill ' + fills[i] + '" style="width:' + (n / maxDist * 100) + '%"></div></div>' +
+                '<span class="report-bar-num">' + n + '</span></div>'
+            ).join('') +
+            '</div>';
+
+        this.el.reportModal.classList.add('show');
+        this.sfx.click();
+    }
+    _confirmReset() {
+        const btn = this.el.btnResetData;
+        if (btn.dataset.confirming === 'yes') {
+            // 二次点击确认，执行重置（保留录音库和收藏夹）
+            this.stats.reset();
+            this._updateStatsUI();
+            localStorage.removeItem('rr-progress');
+            this.el.reportModal.classList.remove('show');
+            this._toast('学习数据已重置（录音库和收藏夹已保留）');
+            btn.textContent = '🗑️ 重置学习数据';
+            btn.style.borderColor = '#ccc';
+            btn.style.color = '#aaa';
+            btn.dataset.confirming = '';
+        } else {
+            // 第一次点击，要求确认
+            btn.textContent = '⚠️ 再点一次确认重置';
+            btn.style.borderColor = '#FF6B6B';
+            btn.style.color = '#FF6B6B';
+            btn.dataset.confirming = 'yes';
+            // 3秒后自动恢复
+            setTimeout(() => {
+                if (btn.dataset.confirming === 'yes') {
+                    btn.textContent = '🗑️ 重置学习数据';
+                    btn.style.borderColor = '#ccc';
+                    btn.style.color = '#aaa';
+                    btn.dataset.confirming = '';
+                }
+            }, 3000);
+        }
+    }
+    _fmtTime(ts) {
+        const d = new Date(ts);
+        return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    /* ===== 示例刷新 ===== */
+    _refreshExamples() {
+        const { texts, keys, labels } = getRandomExamples();
+        this.currentExamples = texts;
+        // 更新按钮显示
+        const bar = this.el.exampleBar;
+        // 移除旧的 data-key 按钮（保留换一批按钮）
+        bar.querySelectorAll('.btn-ex[data-key]').forEach(b => b.remove());
+        // 在换一批按钮前插入新按钮
+        const refreshBtn = document.getElementById('btn-refresh-ex');
+        keys.forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-ex';
+            btn.setAttribute('data-key', key);
+            btn.textContent = labels[key] || key;
+            bar.insertBefore(btn, refreshBtn);
+        });
+    }
+    _loadSettings() {
+        const sr = localStorage.getItem('rr');
+        if(sr){const r=parseFloat(sr);this.el.rateSlider.value=r;this.el.rateValue.textContent=r.toFixed(2)+'x';this.tts.setRate(r);}
+        const sv = localStorage.getItem('rv');
+        if(sv) setTimeout(()=>{const i=parseInt(sv);if(i<this.el.voiceSelect.options.length){this.el.voiceSelect.value=i;this.tts.setVoice(i);}},1000);
+    }
+    _loadVoices() {
+        const opts = this.tts.getVoiceOptions();
+        const sel = this.el.voiceSelect;
+        sel.innerHTML = '';
+        if(!opts.length){sel.innerHTML='<option value="">无可用语音</option>';return;}
+        opts.forEach((v,i)=>{const o=document.createElement('option');o.value=i;o.textContent=v.label;sel.appendChild(o);});
+        sel.value='0'; this.tts.setVoice(0);
+    }
+    _parse() {
+        const text = this.el.textInput.value.trim();
+        if(!text){this._toast('请先输入英语文本');return;}
+        this._showLoading();
+        setTimeout(()=>{
+            this.sentences = this.parser.parse(text);
+            this._render();
+            this._hideLoading();
+            if(this.sentences.length>0){
+                this._toast('已生成 '+this.sentences.length+' 个句子');
+                this.el.fullActions.style.display='flex';
+                this.sfx.click();
+                // 保存进度（覆盖旧进度）
+                this._saveProgress();
+            } else this._toast('未能识别有效句子');
+        },300);
+    }
+    _render() {
+        const c = this.el.sentences;
+        if(!this.sentences.length){c.innerHTML='<div class="empty"><div class="empty-icon">📖</div><p>输入文本后点击"开始练习"</p></div>';return;}
+        c.innerHTML = this.sentences.map((s,i) =>
+            '<div class="card'+(s.done?' done':'')+'" data-index="'+i+'"><span class="card-num">'+(i+1)+'</span><div class="card-text hw" id="ct-'+i+'">'+this._renderWords(s)+'</div><div class="card-btns"><button class="btn-s" data-index="'+i+'">🔊 听一听</button><button class="btn-r" data-index="'+i+'">🎤 跟读</button></div></div>'
+        ).join('');
+        c.querySelectorAll('.btn-s').forEach(b=>b.addEventListener('click',e=>this._playSentence(parseInt(e.currentTarget.dataset.index))));
+        c.querySelectorAll('.btn-r').forEach(b=>b.addEventListener('click',e=>this._startRead(parseInt(e.currentTarget.dataset.index))));
+    }
+    /* ===== 逐词高亮渲染 ===== */
+    _renderWords(s) {
+        const clean = s.text.replace(/[^\w\s'-]/g, '');
+        const words = clean.split(/\s+/).filter(x => x);
+        if (!words.length) return this._esc(s.text);
+        // 将原文按单词拆分，保留标点
+        const parts = s.text.split(/(\s+)/);
+        let wi = 0;
+        return parts.map(p => {
+            if (/^\s+$/.test(p)) return p;
+            if (wi < words.length && words[wi]) {
+                const w = words[wi]; wi++;
+                // 把标点从单词前后分离
+                const match = p.match(/^([^\w]*)([\w'-]+)([^\w]*)$/);
+                if (match) {
+                    return this._esc(match[1]) + '<span>' + this._esc(match[2]) + '</span>' + this._esc(match[3]);
+                }
+                return '<span>' + this._esc(p) + '</span>';
+            }
+            return this._esc(p);
+        }).join('');
+    }
+    _highlightWord(sentIdx, wordIdx) {
+        const el = document.getElementById('ct-' + sentIdx);
+        if (!el) return;
+        el.querySelectorAll('span').forEach((sp, i) => {
+            sp.classList.toggle('hl', i === wordIdx);
+        });
+    }
+    _clearWordHighlight(sentIdx) {
+        const el = document.getElementById('ct-' + sentIdx);
+        if (!el) return;
+        el.querySelectorAll('span').forEach(sp => sp.classList.remove('hl'));
+    }
+    _playSentence(i) {
+        const s = this.sentences[i]; if(!s) return;
+        this._highlight(i);
+        this.tts.speak(s.text, () => {
+            this._unhighlight(i);
+            this._clearWordHighlight(i);
+        }, (wi) => this._highlightWord(i, wi), s.words);
+    }
+    // 滚动到指定句子卡片
+    _scrollToCard(idx) {
+        const card = document.querySelector('.card[data-index="'+idx+'"]');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    async _startRead(i) {
+        const s = this.sentences[i]; if(!s) return;
+        this.currentIndex = i;
+        this.isRecording = true;
+        this._highlight(i);
+        this._scrollToCard(i);
+        this._toast('先听原声...');
+        this.sfx.click();
+        await new Promise(resolve => {
+            this.tts.speak(s.text, resolve, (wi) => this._highlightWord(i, wi), s.words);
+        });
+        this._clearWordHighlight(i);
+        this._showRecordModal(s.text);
+        const ok = await this.recorder.startRecording();
+        if(!ok){this._hideRecordModal();this._toast('无法启动录音，请允许麦克风权限');this.isRecording=false;return;}
+        this._toast('请跟读...');
+    }
+    async _onStopRecording() {
+        this.recorder.stopRecording();
+        this.isRecording = false;
+        this._hideRecordModal();
+        const s = this.sentences[this.currentIndex];
+        if(!s) return;
+        this.sfx.beep(600, 80);
+        // 等待录音数据就绪（缩短到150ms）
+        await new Promise(resolve => setTimeout(resolve, 150));
+        // 先用鼓励分秒出弹窗+播放录音，不等待
+        this._doScoreInstant(s);
+    }
+    // 秒出鼓励分弹窗（不阻塞），同时启动后台评分
+    _doScoreInstant(s) {
+        const encourage = this.scorer._encourageScore();
+        // 立即更新UI
+        s.done = true;
+        if (encourage.score > (s.bestScore||0)) s.bestScore = encourage.score;
+        this.stats.addScore(encourage.score, encourage.stars, s.text);
+        this._updateStatsUI();
+        const card = document.querySelector('.card[data-index="'+this.currentIndex+'"]');
+        if (card && !card.classList.contains('done')) card.classList.add('done');
+        if (encourage.stars >= 4) this.sfx.success(); else this.sfx.beep(880, 150);
+        this._showScore(encourage);
+        this._unhighlight(this.currentIndex);
+        // 更新练习进度
+        this._saveProgress();
+        // 检查是否全部完成
+        const allDone = this.sentences.every(s => s.done);
+        if (allDone) localStorage.removeItem('rr-progress');
+        // 后台异步尝试真实评分（如果支持的话）
+        if (this.scorer.isSupported) {
+            this.scorer.evaluate(s.text).then(realResult => {
+                // 只在真实分更低时更新（保持鼓励性）
+                if (realResult.score < encourage.score) {
+                    s.bestScore = Math.max(s.bestScore||0, realResult.score);
+                    this._showScore(realResult);
+                }
+            }).catch(() => {});
+        }
+        if(this._fullReadResolve){this._fullReadResolve();this._fullReadResolve=null;}
+    }
+    _showRecordModal(text) {
+        this.el.rmTitle.textContent = '🎤 请跟读';
+        this.el.rmTip.textContent = text;
+        this.el.rmWaves.style.display = 'flex';
+        this.el.rmBtns.innerHTML = '<button class="btn-stop-rec" id="btn-stop-rec">⏹️ 停止录音</button>';
+        document.getElementById('btn-stop-rec').addEventListener('click', () => this._onStopRecording());
+        this.el.recordModal.classList.add('show');
+    }
+    async _doScore() {
+        const s = this.sentences[this.currentIndex];
+        if(!s) return;
+        // 秒出评分，不显示loading
+        const result = await this.scorer.evaluate(s.text);
+        s.done = true;
+        if (result.score > (s.bestScore||0)) s.bestScore = result.score;
+        // 记录统计
+        this.stats.addScore(result.score, result.stars, s.text);
+        this._updateStatsUI();
+        // 更新卡片完成标记
+        const card = document.querySelector('.card[data-index="'+this.currentIndex+'"]');
+        if (card && !card.classList.contains('done')) card.classList.add('done');
+        // 提示音
+        if (result.stars >= 4) this.sfx.success(); else if (result.stars >= 3) this.sfx.beep(880, 150); else this.sfx.fail();
+        this._showScore(result);
+        this._unhighlight(this.currentIndex);
+        if(this._fullReadResolve){this._fullReadResolve();this._fullReadResolve=null;}
+    }
+    _fullPlay() {
+        if(this.isFullPlaying){this.tts.stopQueue();this.isFullPlaying=false;this.el.btnFullPlay.textContent='🔊 全文播报';this.el.fullProgress.classList.remove('show');return;}
+        if(!this.sentences.length) return;
+        this.isFullPlaying = true;
+        this.el.btnFullPlay.textContent = '⏹️ 停止播报';
+        this.el.fullProgress.classList.add('show');
+        this.sfx.click();
+        const total = this.sentences.length;
+        const updateProgress = (idx) => {
+            this.el.fpText.textContent = this.sentences[idx].text;
+            this.el.fpFill.style.width = ((idx+1)/total*100)+'%';
+            this.el.fpStatus.textContent = '第 '+(idx+1)+' / '+total+' 句';
+            this._highlight(idx);
+        };
+        this.tts.speakQueue(
+            this.sentences.map(s=>s.text),
+            (idx) => updateProgress(idx),
+            () => { this.isFullPlaying=false; this.el.btnFullPlay.textContent='🔊 全文播报'; this.el.fullProgress.classList.remove('show'); this._toast('全文播报完成！'); this.sfx.done(); }
+        );
+    }
+    async _fullRead() {
+        if(this.isFullReading){this.isFullReading=false;this.tts.stop();this.recorder.stopRecording();this._hideRecordModal();this.el.btnFullRec.textContent='🎤 全文跟读';this.el.fullProgress.classList.remove('show');return;}
+        if(!this.sentences.length) return;
+        this.isFullReading = true;
+        this.el.btnFullRec.textContent = '⏹️ 停止跟读';
+        this.el.fullProgress.classList.add('show');
+        this.sfx.click();
+        const total = this.sentences.length;
+        for(let i = 0; i < total; i++) {
+            if(!this.isFullReading) break;
+            const s = this.sentences[i];
+            this.el.fpText.textContent = s.text;
+            this.el.fpFill.style.width = ((i+1)/total*100)+'%';
+            this.el.fpStatus.textContent = '第 '+(i+1)+' / '+total+' 句';
+            this._highlight(i);
+            this.currentIndex = i;
+            await new Promise(resolve => {
+                this.tts.speak(s.text, resolve, (wi) => this._highlightWord(i, wi), s.words);
+            });
+            this._clearWordHighlight(i);
+            if(!this.isFullReading) break;
+            this._showRecordModal(s.text);
+            await new Promise(resolve => { this._fullReadResolve = resolve; });
+            if(!this.isFullReading) break;
+            // 秒出鼓励分（与单句流程一致）
+            this._doScoreInstant(s);
+            await new Promise(resolve => { this._scoreResolve = resolve; });
+        }
+        this.isFullReading = false;
+        this.el.btnFullRec.textContent = '🎤 全文跟读';
+        this.el.fullProgress.classList.remove('show');
+        this._unhighlight(-1);
+        this._toast('全文跟读完成！太棒了！🎉');
+        this.sfx.done();
+        // 合并录音并提供分享
+        this._mergeAndShare();
+    }
+    async _mergeAndShare() {
+        if (!this.recorder.allRecordings.length) return;
+        this._toast('正在合并录音...');
+        const merged = await this.recorder.mergeRecordings();
+        if (!merged) { this._toast('录音合并失败'); return; }
+        // 保存到录音库
+        const text = this.el.textInput.value.trim();
+        const name = text.substring(0, 20).replace(/[\n\r]/g, ' ');
+        this._saveRecording(merged, name);
+        const url = URL.createObjectURL(merged);
+        // 尝试使用 Web Share API 分享
+        if (navigator.share && navigator.canShare) {
+            const file = new File([merged], '跟读录音.wav', { type: 'audio/wav' });
+            try {
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: '英语跟读录音' });
+                    return;
+                }
+            } catch(e) { /* 用户取消分享 */ }
+        }
+        // 不支持分享则提供下载
+        const a = document.createElement('a');
+        a.href = url; a.download = '跟读录音.wav';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        this._toast('录音已保存！');
+    }
+    _hideRecordModal() {
+        this.el.recordModal.classList.remove('show');
+        if(this._fullReadResolve){this._fullReadResolve();this._fullReadResolve=null;}
+    }
+    _showScore(result) {
+        const stars = '⭐'.repeat(result.stars) + '☆'.repeat(5-result.stars);
+        this.el.scoreStars.textContent = stars;
+        this.el.scoreMessage.textContent = result.message;
+        this.el.scoreMessage.style.color = result.color;
+        this.el.scoreDetail.textContent = '得分: ' + result.score + '分';
+        this.el.scoreRecognized.textContent = result.recognized || '';
+        this.el.scoreModal.classList.add('show');
+        // 自动播放跟读录音
+        setTimeout(() => { try { this.recorder.playRecording(); } catch(e) {} }, 200);
+        if(result.stars >= 4) this._confetti();
+        this._save();
+    }
+    _hideScore(autoNext = true) {
+        this.el.scoreModal.classList.remove('show');
+        // 自动进入下一句跟读（仅当autoNext为true时）
+        if (autoNext) {
+            const nextIdx = this.currentIndex + 1;
+            if (nextIdx < this.sentences.length) {
+                setTimeout(() => {
+                    this._startRead(nextIdx);
+                    this._scrollToCard(nextIdx);
+                }, 300);
+            } else if (this.recorder.allRecordings.length > 1) {
+                // 所有句子练完了，合并录音
+                setTimeout(() => this._mergeAndShare(), 500);
+            }
+        }
+        if(this._scoreResolve){this._scoreResolve();this._scoreResolve=null;}
+    }
+    _confetti() {
+        const c = this.el.confetti; c.innerHTML = '';
+        const colors = ['#FF6B9D','#4ECDC4','#FFE66D','#FF9F43','#A29BFE','#FD79A8','#00CEC9'];
+        for(let i=0;i<30;i++){
+            const d = document.createElement('div');
+            d.className='confetti';
+            d.style.left = Math.random()*100+'%';
+            d.style.top = '-10px';
+            d.style.background = colors[Math.floor(Math.random()*colors.length)];
+            d.style.animationDelay = Math.random()*0.8+'s';
+            d.style.animationDuration = (1.5+Math.random())+'s';
+            d.style.width = (6+Math.random()*8)+'px';
+            d.style.height = d.style.width;
+            c.appendChild(d);
+        }
+        setTimeout(()=>{c.innerHTML='';},3000);
+    }
+    _highlight(i){document.querySelectorAll('.card').forEach((c,idx)=>{if(idx===i)c.classList.add('active');else c.classList.remove('active');});}
+    _unhighlight(i){const c=document.querySelector('.card[data-index="'+i+'"]');if(c)c.classList.remove('active');}
+    _showLoading(){this.el.loading.classList.add('show');}
+    _hideLoading(){this.el.loading.classList.remove('show');}
+    _toast(msg){const t=this.el.toast;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+    _save(){localStorage.setItem('rr',this.tts.getRate());if(this.el.voiceSelect.value)localStorage.setItem('rv',this.el.voiceSelect.value);}
+    _esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+}
+
+document.addEventListener('DOMContentLoaded', () => { window.app = new App(); });
+</script>
+<script>
+/* ===== Service Worker 注册 ===== */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
+</script>
+</body>
+</html>
