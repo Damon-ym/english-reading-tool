@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>英语跟读小助手</title>
+    <style>
+:root {
+    --primary-color: #FF6B9D;
+    --primary-light: #FFE4EC;
+    --secondary-color: #4ECDC4;
+    --accent-color: #FFE66D;
+    --bg-color: #FFF9FB;
+    --card-bg: #FFFFFF;
+    --text-primary: #2D3436;
+    --text-secondary: #636E72;
+    --border-color: #FFE4EC;
+    --shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
+    --shadow-hover: 0 8px 30px rgba(255, 107, 157, 0.25);
+    --radius: 20px;
+    --radius-sm: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: var(--bg-color); color: var(--text-primary); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+.app-container { max-width: 480px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+.header { text-align: center; padding: 20px 0 30px; }
+.header h1 { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 8px; font-weight: 700; }
+.subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.settings-panel { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.setting-group { margin-bottom: 16px; }
+.setting-group:last-child { margin-bottom: 0; }
+.setting-group label { display: block; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+#voice-select { width: 100%; padding: 14px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-sm); font-size: 1rem; background: var(--bg-color); color: var(--text-primary); appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FF6B9D' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; }
+#rate-slider { width: 100%; height: 8px; -webkit-appearance: none; appearance: none; background: var(--primary-light); border-radius: 4px; outline: none; }
+#rate-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(255, 107, 157, 0.4); }
+#rate-value { color: var(--primary-color); font-weight: 600; }
+.input-section { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+#text-input { width: 100%; min-height: 120px; padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-sm); font-size: 1rem; line-height: 1.6; resize: vertical; font-family: inherit; background: var(--bg-color); color: var(--text-primary); margin-bottom: 16px; }
+#text-input:focus { outline: none; border-color: var(--primary-color); }
+#text-input::placeholder { color: #B2BEC3; }
+.btn-primary { width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--primary-color), #FF8FB3); color: white; border: none; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3); }
+.btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3); }
+.sentences-section { min-height: 200px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+.empty-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.6; }
+.sentence-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); transition: all 0.3s ease; position: relative; overflow: hidden; }
+.sentence-card.active { border: 2px solid var(--primary-color); box-shadow: var(--shadow-hover); }
+.sentence-number { position: absolute; top: 12px; left: 16px; width: 28px; height: 28px; background: var(--primary-light); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; }
+.sentence-text { font-size: 1.3rem; line-height: 1.8; color: var(--text-primary); margin: 36px 0 20px; padding: 0 8px; font-weight: 500; }
+.sentence-actions { display: flex; gap: 12px; justify-content: center; }
+.btn-speak, .btn-record { flex: 1; max-width: 140px; padding: 14px 20px; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-speak { background: var(--secondary-color); color: white; box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3); }
+.btn-record { background: var(--accent-color); color: var(--text-primary); box-shadow: 0 4px 12px rgba(255, 230, 109, 0.3); }
+.btn-speak:active, .btn-record:active { transform: scale(0.95); }
+.btn-record.recording { background: #FF6B6B; color: white; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+.modal.show { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-content { background: var(--card-bg); border-radius: var(--radius); padding: 40px 30px; text-align: center; max-width: 320px; width: 100%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.score-display { margin-bottom: 30px; }
+.stars { font-size: 3rem; margin-bottom: 16px; letter-spacing: 4px; }
+.score-message { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; }
+.score-details { font-size: 0.9rem; color: var(--text-secondary); }
+.btn-close { width: 100%; padding: 16px 24px; background: var(--primary-color); color: white; border: none; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.btn-close:active { transform: scale(0.98); }
+.loading { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.95); z-index: 1001; align-items: center; justify-content: center; flex-direction: column; }
+.loading.show { display: flex; }
+.spinner { width: 50px; height: 50px; border: 4px solid var(--primary-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(45, 52, 54, 0.9); color: white; padding: 14px 28px; border-radius: 30px; font-size: 0.95rem; opacity: 0; transition: all 0.3s ease; z-index: 1002; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+@media (max-width: 380px) { .app-container { padding: 16px; } .header h1 { font-size: 1.5rem; } .sentence-text { font-size: 1.15rem; } .btn-speak, .btn-record { padding: 12px 16px; font-size: 0.9rem; } }
+@supports (padding-top: env(safe-area-inset-top)) { .app-container { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); } }
+.btn-primary, .btn-speak, .btn-record, .btn-close { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🌟 英语跟读小助手</h1>
+            <p class="subtitle">点击句子，跟读练习</p>
+        </header>
+
+        <section class="settings-panel">
+            <div class="setting-group">
+                <label for="voice-select">🎙️ 选择声音</label>
+                <select id="voice-select">
+                    <option value="">加载中...</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label for="rate-slider">🐢 语速 <span id="rate-value">1.0x</span></label>
+                <input type="range" id="rate-slider" min="0.6" max="1.5" step="0.1" value="1.0">
+            </div>
+        </section>
+
+        <section class="input-section">
+            <textarea id="text-input" placeholder="在这里粘贴英语文本...&#10;例如：The cat sat on the mat."></textarea>
+            <button id="parse-btn" class="btn-primary">✨ 开始练习</button>
+        </section>
+
+        <section class="sentences-section" id="sentences-container">
+            <div class="empty-state">
+                <div class="empty-icon">📖</div>
+                <p>输入文本后点击"开始练习"</p>
+            </div>
+        </section>
+
+        <div class="modal" id="score-modal">
+            <div class="modal-content">
+                <div class="score-display">
+                    <div class="stars" id="score-stars"></div>
+                    <div class="score-message" id="score-message"></div>
+                    <div class="score-details" id="score-details"></div>
+                </div>
+                <button class="btn-close" id="close-modal">👍 继续</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在准备...</p>
+        </div>
+
+        <div class="toast" id="toast"></div>
+    </div>
+
+<script>
+/* ===== 文本解析模块 ===== */
+class TextParser {
+    constructor() {
+        this.abbreviations = ['Mr.','Mrs.','Ms.','Dr.','Prof.','a.m.','p.m.','e.g.','i.e.','Mr','Mrs','Ms','Dr','Prof'];
+    }
+    parse(text) {
+        if (!text || typeof text !== 'string') return [];
+        text = text.trim().replace(/\s+/g, ' ');
+        let protectedText = this._protectAbbreviations(text);
+        const sentences = this._splitSentences(protectedText);
+        return sentences.map((s, index) => this._processSentence(s, index)).filter(s => s.text.length > 0);
+    }
+    _protectAbbreviations(text) {
+        let result = text;
+        this.abbreviations.forEach(abbr => {
+            const regex = new RegExp(abbr.replace('.', '\\.'), 'gi');
+            result = result.replace(regex, match => match.replace(/\./g, '§DOT§'));
+        });
+        return result;
+    }
+    _restoreAbbreviations(text) { return text.replace(/§DOT§/g, '.'); }
+    _splitSentences(text) {
+        const sentences = [];
+        let currentSentence = '';
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            currentSentence += char;
+            if (/[.!?。！？]/.test(char)) {
+                let j = i + 1;
+                while (j < text.length && /[""''")\]\s]/.test(text[j])) { currentSentence += text[j]; j++; }
+                sentences.push(currentSentence.trim());
+                currentSentence = '';
+                i = j - 1;
+            }
+        }
+        if (currentSentence.trim()) sentences.push(currentSentence.trim());
+        return sentences;
+    }
+    _processSentence(sentence, index) {
+        const restoredText = this._restoreAbbreviations(sentence);
+        const words = restoredText.replace(/[^\w\s'-]/g, '').split(/\s+/).filter(w => w.length > 0);
+        return { id: index, text: restoredText, words: words, wordCount: words.length };
+    }
+}
+
+/* ===== TTS语音引擎 ===== */
+class TTSEngine {
+    constructor() {
+        this.synth = window.speechSynthesis;
+        this.voices = [];
+        this.currentVoice = null;
+        this.rate = 1.0;
+        this.pitch = 1.0;
+        this.volume = 1.0;
+        this.isSpeaking = false;
+        this.preferredVoices = [
+            { name: 'Google UK English Female', lang: 'en-GB', label: '温柔女声' },
+            { name: 'Microsoft Libby - English (United Kingdom)', lang: 'en-GB', label: '清晰女声' },
+            { name: 'Microsoft Mia - English (United Kingdom)', lang: 'en-GB', label: '活泼女声' },
+            { name: 'Samantha', lang: 'en-GB', label: '自然女声' },
+            { name: 'Victoria', lang: 'en-GB', label: '标准女声' }
+        ];
+        this.availableVoices = [];
+        this.init();
+    }
+    init() {
+        if (!this.synth) return;
+        this._loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => this._loadVoices();
+        }
+    }
+    _loadVoices() {
+        this.voices = this.synth.getVoices();
+        this.availableVoices = this.voices.filter(voice => voice.lang.startsWith('en-GB') || voice.lang.startsWith('en-'));
+        if (this.availableVoices.length === 0) this.availableVoices = this.voices.filter(v => v.lang.startsWith('en'));
+        this.availableVoices.sort((a, b) => {
+            const aIndex = this.preferredVoices.findIndex(pv => a.name.includes(pv.name) || pv.name.includes(a.name));
+            const bIndex = this.preferredVoices.findIndex(pv => b.name.includes(pv.name) || pv.name.includes(b.name));
+            if (aIndex === -1 && bIndex === -1) return 0;
+            if (aIndex === -1) return 1;
+            if (bIndex === -1) return -1;
+            return aIndex - bIndex;
+        });
+        if (this.availableVoices.length > 0 && !this.currentVoice) this.currentVoice = this.availableVoices[0];
+    }
+    getVoiceOptions() {
+        return this.availableVoices.map((voice, index) => {
+            const preferred = this.preferredVoices.find(pv => voice.name.includes(pv.name) || pv.name.includes(voice.name));
+            return { id: index, name: voice.name, lang: voice.lang, label: preferred ? preferred.label : '语音 ' + (index + 1), voice: voice };
+        });
+    }
+    setVoice(voiceIndex) {
+        if (voiceIndex >= 0 && voiceIndex < this.availableVoices.length) { this.currentVoice = this.availableVoices[voiceIndex]; return true; }
+        return false;
+    }
+    setRate(rate) { this.rate = Math.max(0.6, Math.min(1.5, rate)); return this.rate; }
+    getRate() { return this.rate; }
+    speak(text, onEnd = null) {
+        if (!this.synth || !this.currentVoice) return false;
+        this.stop();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = this.currentVoice;
+        utterance.rate = this.rate;
+        utterance.pitch = this.pitch;
+        utterance.volume = this.volume;
+        utterance.lang = this.currentVoice.lang;
+        utterance.onstart = () => { this.isSpeaking = true; };
+        utterance.onend = () => { this.isSpeaking = false; if (onEnd) onEnd(); };
+        utterance.onerror = (event) => { this.isSpeaking = false; };
+        if (this._isIOS()) { setTimeout(() => { this.synth.speak(utterance); }, 100); }
+        else { this.synth.speak(utterance); }
+        return true;
+    }
+    stop() { if (this.synth) { this.synth.cancel(); this.isSpeaking = false; } }
+    markUserInteracted() { this._hasUserInteracted = true; }
+    _isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+}
+
+/* ===== 语音识别与评分引擎 ===== */
+class SpeechEngine {
+    constructor() {
+        this.recognition = null;
+        this.isRecording = false;
+        this.isSupported = false;
+        this.feedbackLevels = {
+            PERFECT: { stars: 5, message: 'Perfect! 🌟', color: '#FFD700' },
+            GREAT: { stars: 4, message: 'Well done! ⭐', color: '#FFA500' },
+            GOOD: { stars: 3, message: 'Good job! 👍', color: '#90EE90' },
+            OKAY: { stars: 2, message: 'Keep trying! 💪', color: '#87CEEB' },
+            TRY_AGAIN: { stars: 1, message: 'Try again! 🌈', color: '#FFB6C1' }
+        };
+        this.init();
+    }
+    init() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'en-US';
+            this.isSupported = true;
+            this._setupRecognitionEvents();
+        }
+    }
+    _setupRecognitionEvents() {
+        this.recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            if (this.onResultCallback) this.onResultCallback({ transcript: transcript, confidence: event.results[0][0].confidence, isFinal: true });
+        };
+        this.recognition.onerror = (event) => {
+            this.isRecording = false;
+            let errorMessage = '识别出错，请重试';
+            switch(event.error) {
+                case 'no-speech': errorMessage = '没有检测到语音，请大声一点'; break;
+                case 'audio-capture': errorMessage = '无法访问麦克风'; break;
+                case 'not-allowed': errorMessage = '请允许使用麦克风'; break;
+                case 'network': errorMessage = '网络问题，请检查网络'; break;
+            }
+            if (this.onErrorCallback) this.onErrorCallback({ error: event.error, message: errorMessage });
+        };
+        this.recognition.onend = () => { this.isRecording = false; if (this.onEndCallback) this.onEndCallback(); };
+        this.recognition.onstart = () => { this.isRecording = true; if (this.onStartCallback) this.onStartCallback(); };
+    }
+    startRecording(callbacks = {}) {
+        if (!this.isSupported || !this.recognition) { if (callbacks.onError) callbacks.onError({ error: 'not-supported', message: '您的设备不支持语音识别' }); return false; }
+        this.onResultCallback = callbacks.onResult;
+        this.onErrorCallback = callbacks.onError;
+        this.onStartCallback = callbacks.onStart;
+        this.onEndCallback = callbacks.onEnd;
+        try { this.recognition.start(); return true; }
+        catch (e) { if (callbacks.onError) callbacks.onError({ error: 'start-failed', message: '启动失败，请重试' }); return false; }
+    }
+    stopRecording() { if (this.recognition && this.isRecording) this.recognition.stop(); this.isRecording = false; }
+    calculateScore(original, recognized) {
+        if (!original || !recognized) return this._createScoreResult(0, 'TRY_AGAIN');
+        const origWords = this._normalizeText(original).split(/\s+/);
+        const recogWords = this._normalizeText(recognized).split(/\s+/);
+        const { matchedCount } = this._calculateWordMatch(origWords, recogWords);
+        const accuracyScore = Math.round((matchedCount / origWords.length) * 100);
+        let level;
+        if (accuracyScore >= 90) level = 'PERFECT';
+        else if (accuracyScore >= 75) level = 'GREAT';
+        else if (accuracyScore >= 60) level = 'GOOD';
+        else if (accuracyScore >= 40) level = 'OKAY';
+        else level = 'TRY_AGAIN';
+        return this._createScoreResult(accuracyScore, level);
+    }
+    _normalizeText(text) { return text.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim(); }
+    _calculateWordMatch(origWords, recogWords) {
+        const dp = Array(origWords.length + 1).fill(null).map(() => Array(recogWords.length + 1).fill(0));
+        for (let i = 1; i <= origWords.length; i++) {
+            for (let j = 1; j <= recogWords.length; j++) {
+                if (this._wordsSimilar(origWords[i-1], recogWords[j-1])) dp[i][j] = dp[i-1][j-1] + 1;
+                else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+        return { matchedCount: dp[origWords.length][recogWords.length] };
+    }
+    _wordsSimilar(word1, word2) {
+        if (word1 === word2) return true;
+        if (this._levenshteinDistance(word1, word2) <= 1) return true;
+        const variants = { 'a': ['ah','uh'], 'the': ['duh','da'], 'to': ['too','two'], 'i': ['eye','ay'] };
+        for (let [key, vals] of Object.entries(variants)) {
+            if ((word1 === key && vals.includes(word2)) || (word2 === key && vals.includes(word1))) return true;
+        }
+        return false;
+    }
+    _levenshteinDistance(str1, str2) {
+        const matrix = [];
+        for (let i = 0; i <= str2.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= str1.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= str2.length; i++) {
+            for (let j = 1; j <= str1.length; j++) {
+                if (str2.charAt(i-1) === str1.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1];
+                else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);
+            }
+        }
+        return matrix[str2.length][str1.length];
+    }
+    _createScoreResult(score, level) {
+        const feedback = this.feedbackLevels[level];
+        return { score: score, stars: feedback.stars, message: feedback.message, color: feedback.color, level: level };
+    }
+    _isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    checkSupport() {
+        return {
+            speechRecognition: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+            mediaDevices: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+            isIOS: this._isIOS(),
+            isHTTPS: window.location.protocol === 'https:'
+        };
+    }
+}
+
+/* ===== 主控制器 ===== */
+class EnglishReadingApp {
+    constructor() {
+        this.parser = new TextParser();
+        this.tts = new TTSEngine();
+        this.speech = new SpeechEngine();
+        this.sentences = [];
+        this.currentSentenceIndex = -1;
+        this.isRecording = false;
+        this.elements = {};
+        this.init();
+    }
+    init() {
+        this._cacheElements();
+        this._bindEvents();
+        this._initSettings();
+        this._checkSupport();
+        setTimeout(() => this._loadVoiceOptions(), 500);
+    }
+    _cacheElements() {
+        this.elements = {
+            voiceSelect: document.getElementById('voice-select'),
+            rateSlider: document.getElementById('rate-slider'),
+            rateValue: document.getElementById('rate-value'),
+            textInput: document.getElementById('text-input'),
+            parseBtn: document.getElementById('parse-btn'),
+            sentencesContainer: document.getElementById('sentences-container'),
+            scoreModal: document.getElementById('score-modal'),
+            scoreStars: document.getElementById('score-stars'),
+            scoreMessage: document.getElementById('score-message'),
+            scoreDetails: document.getElementById('score-details'),
+            closeModalBtn: document.getElementById('close-modal'),
+            loading: document.getElementById('loading'),
+            toast: document.getElementById('toast')
+        };
+    }
+    _bindEvents() {
+        this.elements.voiceSelect.addEventListener('change', (e) => { this.tts.setVoice(parseInt(e.target.value)); this._showToast('声音已切换'); });
+        this.elements.rateSlider.addEventListener('input', (e) => { const rate = parseFloat(e.target.value); this.tts.setRate(rate); this.elements.rateValue.textContent = rate.toFixed(1) + 'x'; });
+        this.elements.parseBtn.addEventListener('click', () => { this._parseText(); });
+        this.elements.closeModalBtn.addEventListener('click', () => { this._hideScoreModal(); });
+        this.elements.scoreModal.addEventListener('click', (e) => { if (e.target === this.elements.scoreModal) this._hideScoreModal(); });
+        document.addEventListener('touchstart', () => { this.tts.markUserInteracted(); }, { once: true });
+        document.addEventListener('click', () => { this.tts.markUserInteracted(); }, { once: true });
+    }
+    _initSettings() {
+        const savedRate = localStorage.getItem('reading-rate');
+        if (savedRate) { const rate = parseFloat(savedRate); this.elements.rateSlider.value = rate; this.elements.rateValue.textContent = rate.toFixed(1) + 'x'; this.tts.setRate(rate); }
+        const savedVoice = localStorage.getItem('reading-voice');
+        if (savedVoice) { setTimeout(() => { const voiceIndex = parseInt(savedVoice); if (voiceIndex < this.elements.voiceSelect.options.length) { this.elements.voiceSelect.value = voiceIndex; this.tts.setVoice(voiceIndex); } }, 1000); }
+    }
+    _loadVoiceOptions() {
+        const voices = this.tts.getVoiceOptions();
+        const select = this.elements.voiceSelect;
+        select.innerHTML = '';
+        if (voices.length === 0) { select.innerHTML = '<option value="">无可用语音</option>'; return; }
+        voices.forEach((voice, index) => { const option = document.createElement('option'); option.value = index; option.textContent = voice.label; select.appendChild(option); });
+        select.value = '0';
+        this.tts.setVoice(0);
+    }
+    _checkSupport() {
+        const support = this.speech.checkSupport();
+        if (!support.speechRecognition) this._showToast('您的浏览器不支持语音识别，请使用 Chrome 或 Safari');
+    }
+    _parseText() {
+        const text = this.elements.textInput.value.trim();
+        if (!text) { this._showToast('请先输入英语文本'); return; }
+        this._showLoading();
+        setTimeout(() => {
+            this.sentences = this.parser.parse(text);
+            this._renderSentences();
+            this._hideLoading();
+            if (this.sentences.length > 0) this._showToast('已生成 ' + this.sentences.length + ' 个句子');
+            else this._showToast('未能识别有效句子');
+        }, 300);
+    }
+    _renderSentences() {
+        const container = this.elements.sentencesContainer;
+        if (this.sentences.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><p>输入文本后点击"开始练习"</p></div>'; return; }
+        container.innerHTML = this.sentences.map((sentence, index) => '<div class="sentence-card" data-index="' + index + '"><span class="sentence-number">' + (index + 1) + '</span><div class="sentence-text">' + this._escapeHtml(sentence.text) + '</div><div class="sentence-actions"><button class="btn-speak" data-index="' + index + '">🔊 听一听</button><button class="btn-record" data-index="' + index + '">🎤 跟读</button></div></div>').join('');
+        this._bindSentenceEvents();
+    }
+    _bindSentenceEvents() {
+        const container = this.elements.sentencesContainer;
+        container.querySelectorAll('.btn-speak').forEach(btn => { btn.addEventListener('click', (e) => { this._playSentence(parseInt(e.currentTarget.dataset.index)); }); });
+        container.querySelectorAll('.btn-record').forEach(btn => { btn.addEventListener('click', (e) => { this._startRecording(parseInt(e.currentTarget.dataset.index)); }); });
+    }
+    _playSentence(index) {
+        const sentence = this.sentences[index];
+        if (!sentence) return;
+        this._highlightSentence(index);
+        this.tts.speak(sentence.text, () => { this._unhighlightSentence(index); });
+    }
+    _startRecording(index) {
+        if (this.isRecording) { this._stopRecording(); return; }
+        const sentence = this.sentences[index];
+        if (!sentence) return;
+        this.currentSentenceIndex = index;
+        this.isRecording = true;
+        const btn = document.querySelector('.btn-record[data-index="' + index + '"]');
+        if (btn) { btn.classList.add('recording'); btn.textContent = '⏹️ 停止'; }
+        this._highlightSentence(index);
+        const started = this.speech.startRecording({
+            onStart: () => { this._showToast('请跟读...'); },
+            onResult: (result) => { this._handleRecordingResult(sentence.text, result.transcript); },
+            onError: (error) => { this._showToast(error.message); this._stopRecording(); },
+            onEnd: () => { this._stopRecording(); }
+        });
+        if (!started) { this._stopRecording(); this._showToast('无法启动录音，请检查麦克风权限'); }
+        this.recordingTimeout = setTimeout(() => { if (this.isRecording) this._stopRecording(); }, 10000);
+    }
+    _stopRecording() {
+        this.isRecording = false;
+        this.speech.stopRecording();
+        if (this.recordingTimeout) { clearTimeout(this.recordingTimeout); this.recordingTimeout = null; }
+        const btn = document.querySelector('.btn-record[data-index="' + this.currentSentenceIndex + '"]');
+        if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤 跟读'; }
+        if (this.currentSentenceIndex >= 0) this._unhighlightSentence(this.currentSentenceIndex);
+    }
+    _handleRecordingResult(originalText, recognizedText) {
+        const scoreResult = this.speech.calculateScore(originalText, recognizedText);
+        this._showScore(scoreResult);
+    }
+    _showScore(result) {
+        const stars = '⭐'.repeat(result.stars) + '☆'.repeat(5 - result.stars);
+        this.elements.scoreStars.textContent = stars;
+        this.elements.scoreMessage.textContent = result.message;
+        this.elements.scoreMessage.style.color = result.color;
+        this.elements.scoreDetails.textContent = '得分: ' + result.score + '分';
+        this.elements.scoreModal.classList.add('show');
+        this._saveSettings();
+    }
+    _hideScoreModal() { this.elements.scoreModal.classList.remove('show'); }
+    _highlightSentence(index) {
+        document.querySelectorAll('.sentence-card').forEach((card, i) => { if (i === index) card.classList.add('active'); else card.classList.remove('active'); });
+    }
+    _unhighlightSentence(index) { const card = document.querySelector('.sentence-card[data-index="' + index + '"]'); if (card) card.classList.remove('active'); }
+    _showLoading() { this.elements.loading.classList.add('show'); }
+    _hideLoading() { this.elements.loading.classList.remove('show'); }
+    _showToast(message) { const toast = this.elements.toast; toast.textContent = message; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500); }
+    _saveSettings() {
+        localStorage.setItem('reading-rate', this.tts.getRate());
+        const voiceSelect = this.elements.voiceSelect;
+        if (voiceSelect.value) localStorage.setItem('reading-voice', voiceSelect.value);
+    }
+    _escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+}
+
+document.addEventListener('DOMContentLoaded', () => { window.app = new EnglishReadingApp(); });
+</script>
+</body>
+</html>
